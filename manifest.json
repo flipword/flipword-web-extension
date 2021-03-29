@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "Flip Word",
+  "version": "3.1.2.4567",
+  "description": "Flip Word Chrome extension.",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab"
+  ]
+}
