@@ -45,17 +45,6 @@ function initApp() {
   document.getElementById('quickstart-button').addEventListener('click', startSignIn, false);
 }
 
-/**
- * Start the auth flow and authorizes to Firebase.
- * @param{boolean} interactive True if the OAuth flow should request with an interactive mode.
- */
-async function startAuth(interactive){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({
-    'login_hint': '186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com'
-  });
-  await firebase.auth().signInWithPopup(provider);
-}
 
 /**
  * Starts the sign-in process.
@@ -65,7 +54,8 @@ async function startSignIn() {
   if (firebase.auth().currentUser) {
     firebase.auth().signOut();
   } else {
-    await startAuth(true);
+    const bgPage = chrome.extension.getBackgroundPage();
+    bgPage.signInWithPopup();
   }
 }
 

@@ -1,8 +1,13 @@
 // Initialize Firebase
 var config = {
-  apiKey: 'AIzaSyCuon7WUdd609Y85oBJJbD8ul3eGoO8RDs',
-  databaseURL: 'https://flutter-flip-card.firebaseio.com',
-  storageBucket: 'flutter-flip-card.appspot.com'
+  apiKey: "AIzaSyCuon7WUdd609Y85oBJJbD8ul3eGoO8RDs",
+  authDomain: "flutter-flip-card.firebaseapp.com",
+  databaseURL: "https://flutter-flip-card.firebaseio.com",
+  projectId: "flutter-flip-card",
+  storageBucket: "flutter-flip-card.appspot.com",
+  messagingSenderId: "186673725150",
+  appId: "1:186673725150:web:2e45457bb4499811f30c4f",
+  measurementId: "G-K5QTK9Y7PD"
 };
 firebase.initializeApp(config);
 
@@ -25,6 +30,15 @@ function initApp() {
   firebase.auth().onAuthStateChanged(function(user) {
     console.log('User state change detected from the Background script of the Chrome Extension:', user);
   });
+}
+
+function signInWithPopup(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({
+    'login_hint': '186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com'
+  });
+  return firebase.auth().signInWithPopup(provider).catch((error) => {
+    console.log(error)});
 }
 
 window.onload = function() {

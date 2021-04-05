@@ -11,7 +11,8 @@
     "default_popup": "credentials.html"
   },
   "background": {
-    "page": "background.html"
+    "page": "background.html",
+    "persistent": true
   },
   "permissions": [
     "identity"
