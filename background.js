@@ -11,20 +11,6 @@ var config = {
 };
 firebase.initializeApp(config);
 
-/**
- * initApp handles setting up the Firebase context and registering
- * callbacks for the auth status.
- *
- * The core initialization is in firebase.App - this is the glue class
- * which stores configuration. We provide an app name here to allow
- * distinguishing multiple app instances.
- *
- * This method also registers a listener with firebase.auth().onAuthStateChanged.
- * This listener is called when the user is signed in or out, and that
- * is where we update the UI.
- *
- * When signed in, we also authenticate to the Firebase Realtime Database.
- */
 function initApp() {
   // Listen for auth state changes.
   firebase.auth().onAuthStateChanged(function(user) {
@@ -32,14 +18,36 @@ function initApp() {
   });
 }
 
+// TODO: env var login_hint
 function signInWithPopup(){
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({
     'login_hint': '186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com'
   });
-  return firebase.auth().signInWithPopup(provider).catch((error) => {
-    console.log(error)});
+  return firebase.auth().signInWithPopup(provider)
+      .then((result) => {
+        return result
+      })
+      .catch((error) => {
+        console.log(error)});
 }
+
+function insertCard(nativeWord, foreignWord) {
+  const userId = firebase.auth().currentUser.uid;
+  firebase.firestore().collection('dictionary').doc(userId).collection('fr-en').add({nativeWord: nativeWord, foreignWord: foreignWord})
+    .catch(() => {console.error()})
+}
+
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+      if (!!request.nativeWord && !!request.foreignWord){
+        insertCard(request.nativeWord, request.foreignWord);
+        sendResponse({success: true});
+      } else {
+        sendResponse({success: false});
+      }
+    }
+);
 
 window.onload = function() {
   initApp();

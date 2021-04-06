@@ -11,30 +11,11 @@ var config = {
 };
 firebase.initializeApp(config);
 
-/**
- * initApp handles setting up the Firebase context and registering
- * callbacks for the auth status.
- *
- * The core initialization is in firebase.App - this is the glue class
- * which stores configuration. We provide an app name here to allow
- * distinguishing multiple app instances.
- *
- * This method also registers a listener with firebase.auth().onAuthStateChanged.
- * This listener is called when the user is signed in or out, and that
- * is where we update the UI.
- *
- * When signed in, we also authenticate to the Firebase Realtime Database.
- */
 function initApp() {
-  // Listen for auth state changes.
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      var email = user.email;
-      document.getElementById('quickstart-button').textContent = 'Sign out';
-      document.getElementById('quickstart-sign-in-status').textContent = 'Signed in';
-      document.getElementById('user-detail').textContent = `Current user: ${email}`;
+      window.location = 'home.html';
     } else {
-      // Let's try to get a Google auth token programmatically.
       document.getElementById('quickstart-button').textContent = 'Sign-in with Google';
       document.getElementById('quickstart-sign-in-status').textContent = 'Signed out';
       document.getElementById('user-detail').textContent = '';
@@ -54,8 +35,7 @@ async function startSignIn() {
   if (firebase.auth().currentUser) {
     firebase.auth().signOut();
   } else {
-    const bgPage = chrome.extension.getBackgroundPage();
-    bgPage.signInWithPopup();
+    chrome.extension.getBackgroundPage().signInWithPopup();
   }
 }
 
