@@ -1,0 +1,10 @@
+var div = document.createElement("div");
+div.style.width = "100px";
+div.style.height = "100px";
+div.style.zIndex = "1000";
+div.style.top = "50%";
+div.style.left = "50%";
+div.style.position = "absolute";
+div.style.backgroundColor = "orange";
+div.innerHTML = "Hello";
+document.body.appendChild(div);

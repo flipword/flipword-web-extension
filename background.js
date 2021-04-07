@@ -14,7 +14,13 @@ firebase.initializeApp(config);
 function initApp() {
   // Listen for auth state changes.
   firebase.auth().onAuthStateChanged(function(user) {
-    console.log('User state change detected from the Background script of the Chrome Extension:', user);
+      if(user) {
+          console.log('have user');
+          chrome.browserAction.setPopup({ popup: "home.html"});
+      } else {
+          console.log('not have user');
+          chrome.browserAction.setPopup({ popup: "credentials.html"});
+      }
   });
 }
 
@@ -32,11 +38,28 @@ function signInWithPopup(){
         console.log(error)});
 }
 
+function signOut() {
+    firebase.auth().signOut();
+}
+
 function insertCard(nativeWord, foreignWord) {
   const userId = firebase.auth().currentUser.uid;
   firebase.firestore().collection('dictionary').doc(userId).collection('fr-en').add({nativeWord: nativeWord, foreignWord: foreignWord})
     .catch(() => {console.error()})
 }
+
+chrome.runtime.onInstalled.addListener(function() {
+    chrome.contextMenus.create({
+        title: 'Add to your FlipWord collection',
+        contexts: ['selection'],
+    });
+});
+
+chrome.contextMenus.onClicked.addListener(function () {
+    chrome.tabs.executeScript({
+        file: 'displayPopup.js'
+    });
+});
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
