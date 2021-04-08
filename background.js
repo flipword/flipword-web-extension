@@ -55,9 +55,13 @@ chrome.runtime.onInstalled.addListener(function() {
     });
 });
 
+
 chrome.contextMenus.onClicked.addListener(function () {
     chrome.tabs.executeScript({
-        file: 'displayPopup.js'
+        file: 'hoverPopup.js'
+    });
+    chrome.tabs.insertCSS({
+        file: 'hoverPopup.css'
     });
 });
 
