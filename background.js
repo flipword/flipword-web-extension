@@ -49,7 +49,7 @@ function insertCard(nativeWord, foreignWord) {
     .catch(() => {console.error()})
 }
 
-function translateWord(word) {
+function translateWordForPopup(word) {
     const baseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
     const queryParam = '?from=fr&to=en&api-version=3.0'
     Http.open('POST', baseUrl+queryParam);
@@ -59,7 +59,28 @@ function translateWord(word) {
     Http.send(`[{"Text":"${word}"}]`);
     Http.onreadystatechange = function () {
         if(Http.readyState == 4){
-            console.log('response :', Http.responseText)
+            const response = JSON.parse(Http.responseText);
+            const word = response[0].translations[0].text
+            chrome.runtime.sendMessage({object: 'translate', word: word});
+        }
+    }
+}
+
+function translateWordForContentScript(word) {
+    const baseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
+    const queryParam = '?from=en&to=fr&api-version=3.0'
+    Http.open('POST', baseUrl+queryParam);
+    Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
+    Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
+    Http.setRequestHeader('Content-Type', 'application/json');
+    Http.send(`[{"Text":"${word}"}]`);
+    Http.onreadystatechange = function () {
+        if(Http.readyState == 4){
+            const response = JSON.parse(Http.responseText);
+            const word = response[0].translations[0].text
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {object: 'translate', word: word});
+            });
         }
     }
 }
@@ -91,6 +112,8 @@ chrome.runtime.onMessage.addListener(
           sendResponse({success: false});
       } else if(request.object == 'getUser') {
           sendResponse({user: firebase.auth().currentUser.email});
+      } else if(request.object == 'requestTranslate' && request.from == 'contentScript') {
+          translateWordForContentScript(request.word)
       }
     }
 );
