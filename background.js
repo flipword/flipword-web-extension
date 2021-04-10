@@ -21,6 +21,7 @@ function initApp() {
           console.log('not have user');
           chrome.browserAction.setPopup({ popup: "credentials.html"});
       }
+      chrome.runtime.sendMessage({object: 'signIn', user: !!user});
   });
 }
 
@@ -67,11 +68,13 @@ chrome.contextMenus.onClicked.addListener(function () {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-      if (!!request.nativeWord && !!request.foreignWord){
-        insertCard(request.nativeWord, request.foreignWord);
-        sendResponse({success: true});
-      } else {
-        sendResponse({success: false});
+      if (request.object == 'insertWord' && !!request.nativeWord && !!request.foreignWord){
+          insertCard(request.nativeWord, request.foreignWord);
+          sendResponse({success: true});
+      } else if(request.object == 'insertWord') {
+          sendResponse({success: false});
+      } else if(request.object == 'getUser') {
+          sendResponse({user: firebase.auth().currentUser.email});
       }
     }
 );

@@ -12,6 +12,14 @@ async function startSignIn() {
   chrome.extension.getBackgroundPage().signInWithPopup();
 }
 
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+      if (request.object == 'signIn' && request.user){
+        window.location = 'home.html';
+      }
+    }
+)
+
 window.onload = function() {
   initApp();
 };
