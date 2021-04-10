@@ -13,30 +13,10 @@ firebase.initializeApp(config);
 
 // Init translate service
 const Http = new XMLHttpRequest();
-function initTranslate() {
-    const baseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
-    const queryParam = '?from=fr&to=en&api-version=3.0'
-    Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
-    Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
-    Http.setRequestHeader('Content-Type', 'application/json');
-}
-
-function translateWord(word) {
-    console.log('init request')
-    Http.open('POST', baseUrl+queryParam);
-    Http.send(`[{"Text":"${word}"}]`);
-    // Http.onreadystatechange = function () {
-    //     if(Http.readyState == 4){
-    //         console.log('response :', Http.responseText)
-    //     }
-    // }
-}
-
 
 function initApp() {
   firebase.auth().onAuthStateChanged(function(user) {
       if(user) {
-          initTranslate()
           chrome.browserAction.setPopup({ popup: "home.html"});
       } else {
           chrome.browserAction.setPopup({ popup: "credentials.html"});
@@ -68,6 +48,22 @@ function insertCard(nativeWord, foreignWord) {
   firebase.firestore().collection('dictionary').doc(userId).collection('fr-en').add({nativeWord: nativeWord, foreignWord: foreignWord})
     .catch(() => {console.error()})
 }
+
+function translateWord(word) {
+    const baseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
+    const queryParam = '?from=fr&to=en&api-version=3.0'
+    Http.open('POST', baseUrl+queryParam);
+    Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
+    Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
+    Http.setRequestHeader('Content-Type', 'application/json');
+    Http.send(`[{"Text":"${word}"}]`);
+    Http.onreadystatechange = function () {
+        if(Http.readyState == 4){
+            console.log('response :', Http.responseText)
+        }
+    }
+}
+
 
 chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
