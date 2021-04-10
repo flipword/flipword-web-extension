@@ -23,6 +23,10 @@ var submitButton = document.createElement("button")
 submitButton.innerText = "Submit"
 submitButton.addEventListener('click', submitWord, false);
 
+var closeButton = document.createElement("button")
+closeButton.innerText = "Close"
+closeButton.addEventListener('click', closePopup, false);
+
 var divContainer = document.createElement("div")
 divContainer.id = "flip-word-hover-popup-container"
 divContainer.appendChild(labelInputNativeWord)
@@ -30,12 +34,17 @@ divContainer.appendChild(inputNativeWord)
 divContainer.appendChild(labelInputForeignWord)
 divContainer.appendChild(inputForeignWord)
 divContainer.appendChild(submitButton)
+divContainer.appendChild(closeButton)
 
 document.body.appendChild(divContainer)
 
+function closePopup() {
+    divContainer.remove();
+}
+
 function submitWord() {
     chrome.runtime.sendMessage({object: 'insertWord', nativeWord: inputNativeWord.value, foreignWord: inputForeignWord.value});
-    divContainer.remove();
+    closePopup()
 }
 
 chrome.runtime.sendMessage({object: 'requestTranslate', from: 'contentScript', word: selection});
