@@ -1,5 +1,5 @@
 // Initialize Firebase
-var config = {
+const config = {
   apiKey: "AIzaSyCuon7WUdd609Y85oBJJbD8ul3eGoO8RDs",
   authDomain: "flutter-flip-card.firebaseapp.com",
   databaseURL: "https://flutter-flip-card.firebaseio.com",
@@ -11,14 +11,34 @@ var config = {
 };
 firebase.initializeApp(config);
 
+// Init translate service
+const Http = new XMLHttpRequest();
+function initTranslate() {
+    const baseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
+    const queryParam = '?from=fr&to=en&api-version=3.0'
+    Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
+    Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
+    Http.setRequestHeader('Content-Type', 'application/json');
+}
+
+function translateWord(word) {
+    console.log('init request')
+    Http.open('POST', baseUrl+queryParam);
+    Http.send(`[{"Text":"${word}"}]`);
+    // Http.onreadystatechange = function () {
+    //     if(Http.readyState == 4){
+    //         console.log('response :', Http.responseText)
+    //     }
+    // }
+}
+
+
 function initApp() {
-  // Listen for auth state changes.
   firebase.auth().onAuthStateChanged(function(user) {
       if(user) {
-          console.log('have user');
+          initTranslate()
           chrome.browserAction.setPopup({ popup: "home.html"});
       } else {
-          console.log('not have user');
           chrome.browserAction.setPopup({ popup: "credentials.html"});
       }
       chrome.runtime.sendMessage({object: 'signIn', user: !!user});

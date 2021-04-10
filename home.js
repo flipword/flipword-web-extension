@@ -3,6 +3,12 @@ function initApp() {
     document.getElementById('user-details').textContent = `Current user: `;
     document.getElementById('signout-button').addEventListener('click', signOut, false);
     document.getElementById('submit-button').addEventListener('click', submitWord, false);
+    document.getElementById('translate-button').addEventListener('click', translateWord, false);
+}
+
+function translateWord(){
+    const word = document.getElementById('native-word').value
+    chrome.extension.getBackgroundPage().translateWord(word);
 }
 
 function submitWord() {
