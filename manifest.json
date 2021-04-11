@@ -19,7 +19,11 @@
     "contextMenus",
     "activeTab",
     "tabs",
-    "https://api.cognitive.microsofttranslator.com/"
+    "webNavigation",
+    "https://*/"
+  ],
+  "web_accessible_resources": [
+    "icon.png"
   ],
   "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com https://apis.google.com; object-src 'self'",
   "oauth2": {

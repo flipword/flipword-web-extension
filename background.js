@@ -85,6 +85,14 @@ function translateWordForContentScript(word) {
     }
 }
 
+function displayHoverPopup() {
+    chrome.tabs.executeScript({
+        file: 'hoverPopup.js'
+    });
+    chrome.tabs.insertCSS({
+        file: 'hoverPopup.css'
+    });
+}
 
 chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
@@ -93,14 +101,8 @@ chrome.runtime.onInstalled.addListener(function() {
     });
 });
 
-
 chrome.contextMenus.onClicked.addListener(function () {
-    chrome.tabs.executeScript({
-        file: 'hoverPopup.js'
-    });
-    chrome.tabs.insertCSS({
-        file: 'hoverPopup.css'
-    });
+    displayHoverPopup()
 });
 
 chrome.runtime.onMessage.addListener(
@@ -114,10 +116,22 @@ chrome.runtime.onMessage.addListener(
           sendResponse({user: firebase.auth().currentUser.email});
       } else if(request.object == 'requestTranslate' && request.from == 'contentScript') {
           translateWordForContentScript(request.word)
+      } else if(request.object == 'displayPopup'){
+          displayHoverPopup()
       }
     }
 );
 
+chrome.webNavigation.onCompleted.addListener(function(details) {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        chrome.tabs.executeScript(tabs[0].id, {
+            file: 'buttonPopup.js'
+        });
+        chrome.tabs.insertCSS(tabs[0].id, {
+            file: 'buttonPopup.css'
+        });
+    });
+})
 window.onload = function() {
   initApp();
 };
