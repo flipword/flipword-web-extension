@@ -1,4 +1,5 @@
 function buttonPopup() {
+    closeButtonPopup()
     const popupButton = document.createElement("div");
     popupButton.id = "flip-word-popup-button";
     const icon = chrome.extension.getURL("icon.png");
@@ -7,17 +8,26 @@ function buttonPopup() {
     popupButton.style.backgroundImage = `url("${icon}")`
     popupButton.style.top = `${rects[n].top + 10}px`
     popupButton.style.left = `${rects[n].right}px`
-    popupButton.onclick = () => openHoverPopup()
+    popupButton.onmousedown = (event) => openHoverPopup(event)
     document.body.appendChild(popupButton);
 }
 
-function openHoverPopup() {
-    const popupButton = document.getElementById('flip-word-popup-button')
+function openHoverPopup(event) {
+    event.preventDefault()
+    event.cancelBubble = true;
     chrome.runtime.sendMessage({object: 'displayPopup'});
-    popupButton.remove()
+    closeButtonPopup()
+}
+
+function closeButtonPopup() {
+    const popupButton = document.getElementById('flip-word-popup-button')
+    if(popupButton){
+        popupButton.remove()
+    }
 }
 
 window.onmouseup = () => {
-    if(!window.getSelection().isCollapsed)
+    if(!window.getSelection().isCollapsed){
         buttonPopup()
+    }
 }

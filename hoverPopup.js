@@ -40,14 +40,6 @@ document.body.appendChild(divContainer)
 
 function closePopup() {
     divContainer.remove();
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        chrome.tabs.executeScript(tabs[0].id, {
-            file: 'hoverPopup.js'
-        });
-        chrome.tabs.insertCSS(tabs[0].id, {
-            file: 'hoverPopup.css'
-        });
-    });
 }
 
 function submitWord() {

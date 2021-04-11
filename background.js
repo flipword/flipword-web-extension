@@ -86,11 +86,13 @@ function translateWordForContentScript(word) {
 }
 
 function displayHoverPopup() {
-    chrome.tabs.executeScript({
-        file: 'hoverPopup.js'
-    });
-    chrome.tabs.insertCSS({
-        file: 'hoverPopup.css'
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        chrome.tabs.executeScript(tabs[0].id, {
+            file: 'hoverPopup.js'
+        });
+        chrome.tabs.insertCSS(tabs[0].id, {
+            file: 'hoverPopup.css'
+        });
     });
 }
 
@@ -102,7 +104,7 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 
 chrome.contextMenus.onClicked.addListener(function () {
-    displayHoverPopup()
+    displayHoverPopup(null)
 });
 
 chrome.runtime.onMessage.addListener(
