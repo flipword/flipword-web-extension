@@ -125,14 +125,16 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.webNavigation.onCompleted.addListener(function(details) {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        chrome.tabs.executeScript(tabs[0].id, {
-            file: 'buttonPopup.js'
+    if(details.url.startsWith('http') || details.url.startsWith('https')){
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+            chrome.tabs.executeScript(tabs[0].id, {
+                file: 'buttonPopup.js'
+            });
+            chrome.tabs.insertCSS(tabs[0].id, {
+                file: 'buttonPopup.css'
+            });
         });
-        chrome.tabs.insertCSS(tabs[0].id, {
-            file: 'buttonPopup.css'
-        });
-    });
+    }
 })
 window.onload = function() {
   initApp();
