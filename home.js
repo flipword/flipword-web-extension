@@ -1,6 +1,5 @@
 // TODO: get user info with sending msg to background
 function initApp() {
-    document.getElementById('user-details').textContent = `Current user: `;
     document.getElementById('signout-button').addEventListener('click', signOut, false);
     document.getElementById('submit-button').addEventListener('click', submitWord, false);
     document.getElementById('translate-button').addEventListener('click', translateWord, false);
@@ -23,10 +22,6 @@ function submitWord() {
 function signOut() {
     chrome.extension.getBackgroundPage().signOut();
 }
-
-chrome.runtime.sendMessage({object: 'getUser'}, function (response) {
-    document.getElementById('user-details').textContent += `${response.user}`;
-})
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {

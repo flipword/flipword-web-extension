@@ -1,5 +1,4 @@
 function initApp() {
-  document.getElementById('quickstart-button').textContent = 'Sign-in with Google';
   document.getElementById('quickstart-button').addEventListener('click', startSignIn, false);
 }
 

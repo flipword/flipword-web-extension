@@ -21,27 +21,32 @@ limitations under the License.
     <title>Flip Word Home</title>
 
     <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="home.css">
     <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
     <script src="home.js"></script>
 </head>
 <body>
-<h2>Flip Word</h2>
-<h3>Firebase Home</h3>
-
+<div class="header-layout">
+    <h2>FlipWord</h2>
+</div>
 <div class="user-details-container">
     <span id="user-details"></span>
 </div>
-<div class="input-container">
-    <div class="native-word-container" style="width: 100%">
-        <label for="native-word">Native word:</label>
-        <input id="native-word" name="native-word" type="text">
+<div>
+    <div class="word-input-container">
+        <div class="label-word-input">French:</div>
+        <input id="native-word" class="word-input" name="native-word" type="text" autocomplete="off">
     </div>
-    <div class="foreign-word-container" style="width: 100%">
-        <label for="foreign-word">Foreign word:</label>
-        <input id="foreign-word" name="foreign-word" type="text">
+    <div class="button-container">
+        <button id="translate-button" class="extension-button">Translate</button>
     </div>
-    <button id="submit-button">Submit</button>
-    <button id="translate-button">Translate</button>
+    <div class="word-input-container">
+        <div class="label-word-input">English:</div>
+        <input id="foreign-word" class="word-input" name="foreign-word" type="text" autocomplete="off">
+    </div>
+    <div class="button-container">
+        <button id="submit-button" class="extension-button">Save</button>
+    </div>
 </div>
 <button id="signout-button" style="margin-top: 10px">Sign-out</button>
 </body>

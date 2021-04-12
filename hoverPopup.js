@@ -35,11 +35,13 @@ divContainer.appendChild(labelInputForeignWord)
 divContainer.appendChild(inputForeignWord)
 divContainer.appendChild(submitButton)
 divContainer.appendChild(closeButton)
-
+divContainer.onclick = (event) => {event.stopPropagation()}
 document.body.appendChild(divContainer)
 
 function closePopup() {
-    divContainer.remove();
+    const elementToDelete = document.getElementById("flip-word-hover-popup-container");
+    if(elementToDelete)
+        elementToDelete.remove();
 }
 
 function submitWord() {
@@ -55,3 +57,7 @@ chrome.runtime.onMessage.addListener(
             inputNativeWord.value = request.word;
         }
     })
+
+window.onclick = function () {
+    closePopup()
+}

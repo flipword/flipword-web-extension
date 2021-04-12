@@ -15,8 +15,8 @@ function buttonPopup() {
 function openHoverPopup(event) {
     event.preventDefault()
     event.cancelBubble = true;
-    chrome.runtime.sendMessage({object: 'displayPopup'});
     closeButtonPopup()
+    chrome.runtime.sendMessage({object: 'displayPopup'});
 }
 
 function closeButtonPopup() {
@@ -27,7 +27,8 @@ function closeButtonPopup() {
 }
 
 window.onmouseup = () => {
-    if(!window.getSelection().isCollapsed){
+    if(!window.getSelection().isCollapsed)
         buttonPopup()
-    }
+    else
+        closeButtonPopup()
 }

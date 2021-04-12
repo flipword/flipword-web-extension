@@ -1,0 +1,33 @@
+.word-input-container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.word-input-container input{
+    width: 90%;
+    height: 30px;
+    border-radius: 3px;
+    border: none;
+    background-color: white;
+}
+
+.label-word-input{
+    font-weight: bold;
+}
+.button-container{
+    display: flex;
+    justify-content: center;
+}
+
+.extension-button{
+    font-weight: bold;
+    border: 0;
+    padding: 9px 10px 9px 10px;
+    color: #4a4a4a;
+    border-radius: 3px;
+    background-color: #FF9100;
+    box-shadow: 2px 2px 2px #9b9b9b;
+}
