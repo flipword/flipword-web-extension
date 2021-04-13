@@ -41,3 +41,8 @@
     height: 20px;
     margin-bottom: -5px;
 }
+
+#setting-button{
+    color: #0288d1;
+    cursor: pointer;
+}
