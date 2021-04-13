@@ -1,41 +1,54 @@
-var selection = window.getSelection().toString();
+const selection = window.getSelection().toString();
 
-var inputNativeWord = document.createElement("input")
-var labelInputNativeWord = document.createElement("label")
+const containerNativeWord = document.createElement("div")
+containerNativeWord.className = "flip-word-input-container"
+const inputNativeWord = document.createElement("input")
+const labelInputNativeWord = document.createElement("label")
 inputNativeWord.id = "flip-word-input-native-word"
 inputNativeWord.className = "flip-word-input-word"
 inputNativeWord.name = "flip-word-input-native-word"
 inputNativeWord.type = "text"
 labelInputNativeWord.htmlFor = "flip-word-input-native-word"
-labelInputNativeWord.innerText = "Native word:"
+labelInputNativeWord.innerText = "French:"
+containerNativeWord.appendChild(labelInputNativeWord)
+containerNativeWord.appendChild(inputNativeWord)
 
-var inputForeignWord = document.createElement("input")
-var labelInputForeignWord = document.createElement("label")
+const containerForeignWord = document.createElement("div")
+containerForeignWord.className = "flip-word-input-container"
+const inputForeignWord = document.createElement("input")
+const labelInputForeignWord = document.createElement("label")
 inputForeignWord.id = "flip-word-input-foreign-word"
 inputForeignWord.name = "flip-word-input-foreign-word"
 inputForeignWord.className = "flip-word-input-word"
 inputForeignWord.type = "text"
 inputForeignWord.value = selection
 labelInputForeignWord.htmlFor = "flip-word-input-foreign-word"
-labelInputForeignWord.innerText = "Foreign word:"
+labelInputForeignWord.innerText = "English:"
+containerForeignWord.appendChild(labelInputForeignWord)
+containerForeignWord.appendChild(inputForeignWord)
 
-var submitButton = document.createElement("button")
+const containerSubmitButton = document.createElement("div")
+containerSubmitButton.className = "flip-word-button-container"
+const submitButton = document.createElement("button")
+submitButton.className = "flip-word-extension-button"
 submitButton.innerText = "Submit"
 submitButton.addEventListener('click', submitWord, false);
+containerSubmitButton.appendChild(submitButton);
 
-var closeButton = document.createElement("button")
+const closeButton = document.createElement("button")
 closeButton.innerText = "Close"
 closeButton.addEventListener('click', closePopup, false);
 
-var divContainer = document.createElement("div")
+const divContainer = document.createElement("div")
 divContainer.id = "flip-word-hover-popup-container"
-divContainer.appendChild(labelInputNativeWord)
-divContainer.appendChild(inputNativeWord)
-divContainer.appendChild(labelInputForeignWord)
-divContainer.appendChild(inputForeignWord)
-divContainer.appendChild(submitButton)
-divContainer.appendChild(closeButton)
+divContainer.appendChild(containerNativeWord)
+divContainer.appendChild(containerForeignWord)
+divContainer.appendChild(containerSubmitButton)
 divContainer.onclick = (event) => {event.stopPropagation()}
+const rects=window.getSelection().getRangeAt(0).getBoundingClientRect()
+const relative=document.body.parentNode.getBoundingClientRect()
+divContainer.style.top = `${rects.bottom - relative.top}px`
+divContainer.style.left = `${rects.right}px`
 document.body.appendChild(divContainer)
 
 function closePopup() {

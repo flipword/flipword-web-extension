@@ -1,14 +1,52 @@
 #flip-word-hover-popup-container{
-    width: 320px;
-    height: 170px;
-    position: fixed;
-    padding: 10px;
-    top: 50%;
-    left: 50%;
-    background-color: orange !important;
+    position: absolute !important;
+    width: 320px !important;
+    height: 170px !important;
+    padding: 10px !important;
+    border: 1px solid #cbcbcb !important;
+    background-color: #EAEAEA !important;
+    box-shadow: 2px 2px 2px #cbcbcb !important;
+    z-index: 2147483647;
 }
 
 .flip-word-input-word{
-    position: relative;
-    margin: 10px;
+    position: relative !important;
+    margin: 10px !important;
+}
+
+.flip-word-input-container input{
+    width: 90% !important;
+    height: 30px !important;
+    margin-top: -1px !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.flip-word-input-container label{
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    border-radius: 3px 3px 0 0 !important;
+    margin-left: 18px !important;
+    background-color: white !important;
+    font-weight: bold !important;
+}
+
+.flip-word-button-container{
+    display: flex;
+    justify-content: center;
+}
+.flip-word-extension-button{
+    font-weight: bold !important;
+    border: 0 !important;
+    padding: 9px 10px 9px 10px !important;
+    border-radius: 3px !important;
+    background-color: #FF9100 !important;
+    box-shadow: 2px 2px 2px #9b9b9b !important;
+}
+
+.flip-word-extension-button svg{
+    width: 20px !important;
+    height: 20px !important;
+    margin-bottom: -5px !important;
 }
