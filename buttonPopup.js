@@ -3,11 +3,11 @@ function buttonPopup() {
     const popupButton = document.createElement("div");
     popupButton.id = "flip-word-popup-button";
     const icon = chrome.extension.getURL("icon.png");
-    const rects = window.getSelection().getRangeAt(0).getClientRects();
-    const n = rects.length - 1;
+    const rects=window.getSelection().getRangeAt(0).getBoundingClientRect();
+    const relative=document.body.parentNode.getBoundingClientRect();
     popupButton.style.backgroundImage = `url("${icon}")`
-    popupButton.style.top = `${rects[n].top + 10}px`
-    popupButton.style.left = `${rects[n].right}px`
+    popupButton.style.top = `${rects.bottom - relative.top}px`
+    popupButton.style.left = `${rects.right}px`
     popupButton.onmousedown = (event) => openHoverPopup(event)
     document.body.appendChild(popupButton);
 }

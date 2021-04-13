@@ -39,16 +39,13 @@ function signInWithPopup(){
         console.log(error)});
 }
 
-function signOut() {
-    firebase.auth().signOut();
-}
-
 function insertCard(nativeWord, foreignWord) {
   const userId = firebase.auth().currentUser.uid;
   firebase.firestore().collection('dictionary').doc(userId).collection('fr-en').add({nativeWord: nativeWord, foreignWord: foreignWord})
     .catch(() => {console.error()})
 }
 
+// TODO: refacto translate method
 function translateWordForPopup(word) {
     const baseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
     const queryParam = '?from=fr&to=en&api-version=3.0'
@@ -61,6 +58,7 @@ function translateWordForPopup(word) {
         if(Http.readyState == 4){
             const response = JSON.parse(Http.responseText);
             const word = response[0].translations[0].text
+            console.log('send translate:', word)
             chrome.runtime.sendMessage({object: 'translate', word: word});
         }
     }
