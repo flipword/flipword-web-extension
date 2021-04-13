@@ -41,7 +41,7 @@ function signInWithPopup(){
 
 function insertCard(nativeWord, foreignWord) {
   const userId = firebase.auth().currentUser.uid;
-  firebase.firestore().collection('dictionary').doc(userId).collection('fr-en').add({nativeWord: nativeWord, foreignWord: foreignWord})
+  firebase.firestore().collection('dictionary').doc(userId).collection('fr-en').add({nativeWord: nativeWord, foreignWord: foreignWord, nbSuccess: 0, nbErrors: 0})
     .catch(() => {console.error()})
 }
 
