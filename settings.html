@@ -1,10 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
-    <title>Settings</title>
+    <meta charset=utf-8 />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip Word Setting</title>
+
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="settings.css">
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
+    <script src="home.js"></script>
 </head>
 <body>
-<H1>Setting page</H1>
+<div id="setting-container" class="center-element">
+    <div id="setting-frame">
+        <div class="subtitle">Interface settings</div>
+        <div id="interface-setting-container">
+            <input type="checkbox" id="button-popup" name="button-popup" value="button-popup" checked>
+            <label for="button-popup">Display button at selection of html element</label>
+        </div>
+        <div class="subtitle">User settings</div>
+    </div>
+</div>
 </body>
 </html>

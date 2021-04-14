@@ -81,3 +81,8 @@ h2 {
   line-height: 40px;
   color: #2b2b2b;
 }
+
+.center-element {
+  display: flex;
+  justify-content: center;
+}
