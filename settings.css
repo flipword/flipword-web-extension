@@ -4,6 +4,7 @@ html{
 
 body {
     color: #2b2b2b;
+    font-size: 14px;
 }
 
 #setting-container {
@@ -17,13 +18,35 @@ body {
     border-radius: 5px;
 }
 
+#user-setting-container{
+    margin-top: 5px;
+    display: grid;
+}
+
 #interface-setting-container{
     margin-top: 5px;
 }
 
-#interface-setting-container label{
-    font-size: 14px;
+#quickstart-button{
+    font-weight: bold;
+    border: 0;
+    padding: 9px 10px 9px 10px;
+    color: #4a4a4a;
+    border-radius: 3px;
+    background-color: white;
+    box-shadow: 2px 2px 2px #bebebe;
 }
+
+#quickstart-button svg{
+    width: 20px;
+    height: 20px;
+    margin-bottom: -5px;
+}
+
+#current-user-email {
+    width: 100%;
+}
+
 
 .subtitle {
     font-size: 16px;

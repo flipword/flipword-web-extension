@@ -14,6 +14,9 @@ firebase.initializeApp(config);
 // Init translate service
 const Http = new XMLHttpRequest();
 
+// User infos
+let user = null;
+
 function initApp() {
   firebase.auth().onAuthStateChanged(function(user) {
       if(user) {
@@ -31,12 +34,22 @@ function signInWithPopup(){
   provider.setCustomParameters({
     'login_hint': '186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com'
   });
-  return firebase.auth().signInWithPopup(provider)
-      .then((result) => {
-        return result
+  firebase.auth().signInWithPopup(provider)
+      .then(() => {
+        getUser();
       })
       .catch((error) => {
         console.log(error)});
+}
+
+function getUser(){
+    const userId = firebase.auth().currentUser.uid;
+    firebase.firestore().collection('profile').doc(userId).get().then((res) => {
+        user = res.data();
+        chrome.runtime.sendMessage({object: 'userUpdated', user: user});
+    }).catch((err) => {
+        console.log("error:", err)
+    });
 }
 
 function insertCard(nativeWord, foreignWord) {
@@ -113,7 +126,7 @@ chrome.runtime.onMessage.addListener(
       } else if(request.object == 'insertWord') {
           sendResponse({success: false});
       } else if(request.object == 'getUser') {
-          sendResponse({user: firebase.auth().currentUser.email});
+          sendResponse({user: getUser()});
       } else if(request.object == 'requestTranslate' && request.from == 'contentScript') {
           translateWordForContentScript(request.word)
       } else if(request.object == 'displayPopup'){
