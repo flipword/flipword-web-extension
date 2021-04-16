@@ -20,9 +20,9 @@ let user = null;
 function initApp() {
   firebase.auth().onAuthStateChanged(function(user) {
       if(user) {
-          chrome.browserAction.setPopup({ popup: "home.html"});
+          chrome.browserAction.setPopup({ popup: "home/home.html"});
       } else {
-          chrome.browserAction.setPopup({ popup: "credentials.html"});
+          chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
       }
       chrome.runtime.sendMessage({object: 'signIn', user: !!user});
   });
