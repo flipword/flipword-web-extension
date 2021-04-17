@@ -16,18 +16,21 @@ const Http = new XMLHttpRequest();
 
 // User infos
 let user = null;
+let currentLanguage = {nativeLanguageLabel: null, foreignLanguageLabel: null};
 
-function initApp() {
+async function initApp() {
     console.log('init background');
-    firebase.auth().onAuthStateChanged(function(user) {
+    await firebase.auth().onAuthStateChanged(async function(user) {
       if(user) {
+          await getUser();
+          await getLanguages();
+          getCurrentLanguage();
           chrome.browserAction.setPopup({ popup: "home/home.html"});
       } else {
           chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
       }
       chrome.runtime.sendMessage({object: 'signIn', user: !!user});
     });
-    getLanguage();
 }
 
 // TODO: env var login_hint
@@ -37,29 +40,45 @@ function signInWithPopup(){
     'login_hint': '186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com'
   });
   firebase.auth().signInWithPopup(provider)
-      .then(() => {
-        getUser();
-      })
       .catch((error) => {
         console.log(error)});
 }
 
-function getUser(){
+async function getUser(){
     const userId = firebase.auth().currentUser.uid;
-    firebase.firestore().collection('profile').doc(userId).get().then((res) => {
+    await firebase.firestore().collection('profile').doc(userId).get().then((res) => {
         user = res.data();
         chrome.runtime.sendMessage({object: 'userUpdated', user: user});
+        return;
     }).catch((err) => {
         console.log("error:", err)
     });
 }
 
-function getLanguage(){
-    firebase.firestore().collection('language').get().then((res) => {
-        console.log('languages: ',res.docs.map((elem) => elem.data()))
-    }).catch((err) => {
-        console.log("error:", err)
+async function getLanguages(){
+    await chrome.storage.local.get(['languages'], async function(result) {
+        if(!result){
+            await firebase.firestore().collection('language').get().then((res) => {
+                const languages = res.docs.map((elem) => elem.data());
+                chrome.storage.local.set({languages: languages});
+                return;
+            }).catch((err) => {
+                console.log("error:", err);
+            });
+        }
     });
+}
+
+function getCurrentLanguage(){
+    chrome.storage.local.get(['languages'], function(result) {
+        result.languages.forEach((elem) => {
+            if(elem.isoCode == user.nativeLanguageIsoCode){
+                currentLanguage.nativeLanguageLabel = elem.label;
+            } else if (elem.isoCode == user.foreignLanguageIsoCode){
+                currentLanguage.foreignLanguageLabel = elem.label;
+            }
+        });
+    })
 }
 
 function insertCard(nativeWord, foreignWord) {
@@ -81,7 +100,6 @@ function translateWordForPopup(word) {
         if(Http.readyState == 4){
             const response = JSON.parse(Http.responseText);
             const word = response[0].translations[0].text
-            console.log('send translate:', word)
             chrome.runtime.sendMessage({object: 'translate', word: word});
         }
     }
@@ -122,6 +140,7 @@ chrome.runtime.onInstalled.addListener(function() {
         title: 'Add to your FlipWord collection',
         contexts: ['selection'],
     });
+    initApp();
 });
 
 chrome.contextMenus.onClicked.addListener(function () {
@@ -130,17 +149,19 @@ chrome.contextMenus.onClicked.addListener(function () {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-      if (request.object == 'insertWord' && !!request.nativeWord && !!request.foreignWord){
+      if (request.object == 'insertWord' && !!request.nativeWord && !!request.freignWord){
           insertCard(request.nativeWord, request.foreignWord);
           sendResponse({success: true});
       } else if(request.object == 'insertWord') {
           sendResponse({success: false});
       } else if(request.object == 'getUser') {
-          sendResponse({user: getUser()});
+          getUser();
       } else if(request.object == 'requestTranslate' && request.from == 'contentScript') {
           translateWordForContentScript(request.word)
       } else if(request.object == 'displayPopup'){
           displayHoverPopup()
+      } else if(request.object == 'getCurrentLanguages'){
+          sendResponse({currentLanguages: currentLanguage});
       }
     }
 );
@@ -157,6 +178,3 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
         });
     }
 })
-window.onload = function() {
-  initApp();
-};

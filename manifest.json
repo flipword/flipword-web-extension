@@ -23,6 +23,7 @@
     "contextMenus",
     "activeTab",
     "tabs",
+    "storage",
     "webNavigation",
     "https://*/"
   ],

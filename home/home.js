@@ -2,7 +2,12 @@ function initApp() {
     document.getElementById('submit-button').addEventListener('click', submitWord, false);
     document.getElementById('translate-button').addEventListener('click', translateWord, false);
     document.getElementById('setting-button').addEventListener('click', openOption, false);
-
+    chrome.runtime.sendMessage({object: "getCurrentLanguages"}, function(response) {
+        const nativeLanguageLabel = response.currentLanguages.nativeLanguageLabel
+        const foreignLanguageLabel = response.currentLanguages.foreignLanguageLabel
+        document.getElementById('native-word-label').innerText = `${nativeLanguageLabel}:`
+        document.getElementById('foreign-word-label').innerText = `${foreignLanguageLabel}:`
+    });
 }
 
 function translateWord(){
