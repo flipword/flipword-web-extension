@@ -22,9 +22,8 @@ async function initApp() {
     console.log('init background');
     await firebase.auth().onAuthStateChanged(async function(user) {
       if(user) {
-          await getUser();
           await getLanguages();
-          getCurrentLanguage();
+          await getUser();
           chrome.browserAction.setPopup({ popup: "home/home.html"});
       } else {
           chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
@@ -49,6 +48,7 @@ async function getUser(){
     await firebase.firestore().collection('profile').doc(userId).get().then((res) => {
         user = res.data();
         chrome.runtime.sendMessage({object: 'userUpdated', user: user});
+        getCurrentLanguage()
         return;
     }).catch((err) => {
         console.log("error:", err)
@@ -79,6 +79,20 @@ function getCurrentLanguage(){
             }
         });
     })
+}
+
+function updateNativeLanguage(language){
+    console.log('updated nativ language: ', language)
+    const userId = firebase.auth().currentUser.uid;
+    firebase.firestore().collection('profile').doc(userId).update({'nativeLanguageIsoCode': language})
+        .then(() => getUser())
+}
+
+function updateForeignLanguage(language){
+    console.log('updated foreign language: ', language)
+    const userId = firebase.auth().currentUser.uid;
+    firebase.firestore().collection('profile').doc(userId).update({'foreignLanguageIsoCode': language})
+        .then(() => getUser())
 }
 
 function insertCard(nativeWord, foreignWord) {
@@ -162,6 +176,10 @@ chrome.runtime.onMessage.addListener(
           displayHoverPopup()
       } else if(request.object == 'getCurrentLanguages'){
           sendResponse({currentLanguages: currentLanguage});
+      } else if(request.object == 'updateNativeLanguage'){
+          updateNativeLanguage(request.languageIsoCode)
+      } else if(request.object == 'updateForeignLanguage'){
+          updateForeignLanguage(request.languageIsoCode)
       }
     }
 );
