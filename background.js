@@ -18,14 +18,16 @@ const Http = new XMLHttpRequest();
 let user = null;
 
 function initApp() {
-  firebase.auth().onAuthStateChanged(function(user) {
+    console.log('init background');
+    firebase.auth().onAuthStateChanged(function(user) {
       if(user) {
           chrome.browserAction.setPopup({ popup: "home/home.html"});
       } else {
           chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
       }
       chrome.runtime.sendMessage({object: 'signIn', user: !!user});
-  });
+    });
+    getLanguage();
 }
 
 // TODO: env var login_hint
@@ -47,6 +49,14 @@ function getUser(){
     firebase.firestore().collection('profile').doc(userId).get().then((res) => {
         user = res.data();
         chrome.runtime.sendMessage({object: 'userUpdated', user: user});
+    }).catch((err) => {
+        console.log("error:", err)
+    });
+}
+
+function getLanguage(){
+    firebase.firestore().collection('language').get().then((res) => {
+        console.log('languages: ',res.docs.map((elem) => elem.data()))
     }).catch((err) => {
         console.log("error:", err)
     });
@@ -99,10 +109,10 @@ function translateWordForContentScript(word) {
 function displayHoverPopup() {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         chrome.tabs.executeScript(tabs[0].id, {
-            file: 'hoverPopup.js'
+            file: 'content-scripts/hoverPopup.js'
         });
         chrome.tabs.insertCSS(tabs[0].id, {
-            file: 'hoverPopup.css'
+            file: 'content-scripts/hoverPopup.css'
         });
     });
 }
@@ -139,10 +149,10 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
     if(details.url.startsWith('http') || details.url.startsWith('https')){
         chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
             chrome.tabs.executeScript(tabs[0].id, {
-                file: 'buttonPopup.js'
+                file: 'content-scripts/buttonPopup.js'
             });
             chrome.tabs.insertCSS(tabs[0].id, {
-                file: 'buttonPopup.css'
+                file: 'content-scripts/buttonPopup.css'
             });
         });
     }
