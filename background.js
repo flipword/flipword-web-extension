@@ -35,11 +35,11 @@ async function initApp() {
 
 // TODO: env var login_hint
 function signInWithPopup(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({
-    'login_hint': '186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com'
-  });
-  firebase.auth().signInWithPopup(provider)
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({
+        'login_hint': '186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com'
+    });
+    firebase.auth().signInWithPopup(provider)
       .catch((error) => {
         console.log(error)});
 }
@@ -95,8 +95,8 @@ function updateForeignLanguage(language){
 }
 
 function insertCard(nativeWord, foreignWord) {
-  const userId = firebase.auth().currentUser.uid;
-  firebase.firestore().collection('dictionary').doc(userId)
+    const userId = firebase.auth().currentUser.uid;
+    firebase.firestore().collection('dictionary').doc(userId)
       .collection(`${user.nativeLanguageIsoCode}-${user.foreignLanguageIsoCode}`)
       .add({
           nativeWord: nativeWord[0].toUpperCase()+nativeWord.substr(1),
@@ -164,7 +164,11 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 
 chrome.contextMenus.onClicked.addListener(function () {
-    displayHoverPopup(null)
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        chrome.tabs.executeScript(tabs[0].id, {
+            file: 'content-scripts/getSelectionAndOpenPopup.js'
+        });
+    });
 });
 
 chrome.runtime.onMessage.addListener(
