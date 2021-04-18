@@ -101,7 +101,12 @@ function insertCard(nativeWord, foreignWord) {
   const userId = firebase.auth().currentUser.uid;
   firebase.firestore().collection('dictionary').doc(userId)
       .collection(`${user.nativeLanguageIsoCode}-${user.foreignLanguageIsoCode}`)
-      .add({nativeWord: nativeWord, foreignWord: foreignWord, nbSuccess: 0, nbErrors: 0})
+      .add({
+          nativeWord: nativeWord[0].toUpperCase()+nativeWord.substr(1),
+          foreignWord: foreignWord[0].toUpperCase()+foreignWord.substr(1),
+          nbSuccess: 0,
+          nbErrors: 0
+      })
     .catch(() => {console.error()})
 }
 
