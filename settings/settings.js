@@ -1,11 +1,23 @@
 let languages = []
+let popupButton = true
 
 function initApp(){
-    console.log('Init option');
     chrome.runtime.sendMessage({object: 'getUser'});
     chrome.storage.local.get(['languages'], function(result) {
         languages = result.languages
     })
+    chrome.storage.local.get(['popupButtonChecked'], function(result) {
+        if(!!JSON.stringify(result.popupButtonChecked)) {
+            popupButton = result.popupButtonChecked;
+        }
+    })
+}
+
+function changeOptionPopup(checked) {
+    console.log('isChecked: ', checked)
+    const checkboxButtonPopup = document.getElementById('button-popup');
+    checkboxButtonPopup.checked = checked;
+    chrome.storage.local.set({popupButtonChecked: checked});
 }
 
 function removeChilds(parent) {
@@ -25,7 +37,6 @@ function updateForeignLanguage(){
 }
 
 function displayUserInfo(user){
-    console.log('user: ', user)
      const loginContainer = document.getElementById('quickstart-button-container');
      if(loginContainer){
          loginContainer.remove();
@@ -37,6 +48,18 @@ function displayUserInfo(user){
      currentUserSpan.id = 'current-user-email';
      currentUserSpan.innerText = `Current user: ${user.email}`;
 
+    const checkboxButtonPopup = document.getElementById('button-popup');
+    checkboxButtonPopup.checked = popupButton;
+    checkboxButtonPopup.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            checkboxButtonPopup.checked = true;
+            changeOptionPopup(true);
+        } else {
+            checkboxButtonPopup.checked = false;
+            changeOptionPopup(false);
+        }
+    })
+
      const currentNativeLanguageLabel = document.createElement('label')
      currentNativeLanguageLabel.htmlFor = 'native-language';
      currentNativeLanguageLabel.innerText = 'Native language: '
@@ -45,7 +68,6 @@ function displayUserInfo(user){
      currentNativeLanguage.name = 'native-language';
      currentNativeLanguage.className = 'language';
      languages.forEach((language) => {
-         console.log('language: ', language)
          const option = document.createElement("option");
          option.value = language.isoCode;
          option.innerText = language.label;
@@ -80,11 +102,14 @@ function displayUserInfo(user){
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.object == 'userUpdated' && !!request.user){
-            console.log("user data:", request.user)
             displayUserInfo(request.user)
         }
     }
 );
+
+// chrome.storage.local.get(['languages'], function(result) {
+//     languages = result.languages
+// })
 
 
 window.onload = function() {

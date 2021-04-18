@@ -1,4 +1,3 @@
-console.log("params: ", params);
 const containerNativeWord = document.createElement("div")
 containerNativeWord.className = "flip-word-input-container"
 const inputNativeWord = document.createElement("input")

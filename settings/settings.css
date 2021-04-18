@@ -23,6 +23,10 @@ body {
     display: grid;
 }
 
+#user-setting-container label{
+    margin-top: 5px;
+}
+
 #interface-setting-container{
     margin-top: 5px;
 }

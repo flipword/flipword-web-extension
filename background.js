@@ -21,7 +21,6 @@ let user = null;
 let currentLanguage = {nativeLanguageLabel: null, foreignLanguageLabel: null};
 
 async function initApp() {
-    console.log('init background');
     await firebase.auth().onAuthStateChanged(async function(user) {
       if(user) {
           await getLanguages();
@@ -84,14 +83,12 @@ function getCurrentLanguage(){
 }
 
 function updateNativeLanguage(language){
-    console.log('updated nativ language: ', language)
     const userId = firebase.auth().currentUser.uid;
     firebase.firestore().collection('profile').doc(userId).update({'nativeLanguageIsoCode': language})
         .then(() => getUser())
 }
 
 function updateForeignLanguage(language){
-    console.log('updated foreign language: ', language)
     const userId = firebase.auth().currentUser.uid;
     firebase.firestore().collection('profile').doc(userId).update({'foreignLanguageIsoCode': language})
         .then(() => getUser())
@@ -195,14 +192,18 @@ chrome.runtime.onMessage.addListener(
 
 chrome.webNavigation.onCompleted.addListener(function(details) {
     if(details.url.startsWith('http') || details.url.startsWith('https')){
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-            chrome.tabs.executeScript(tabs[0].id, {
-                file: 'content-scripts/buttonPopup.js'
-            });
-            chrome.tabs.insertCSS(tabs[0].id, {
-                file: 'content-scripts/buttonPopup.css'
-            });
-        });
+        chrome.storage.local.get(['popupButtonChecked'], function(result) {
+            if(!!JSON.stringify(result.popupButtonChecked) && result.popupButtonChecked) {
+                chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                    chrome.tabs.executeScript(tabs[0].id, {
+                        file: 'content-scripts/buttonPopup.js'
+                    });
+                    chrome.tabs.insertCSS(tabs[0].id, {
+                        file: 'content-scripts/buttonPopup.css'
+                    });
+                });
+            }
+        })
     }
 })
 
