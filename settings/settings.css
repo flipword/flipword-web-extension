@@ -5,11 +5,12 @@ html{
 body {
     color: #2b2b2b;
     font-size: 14px;
+    width: 400px;
 }
 
 #setting-container {
-    width: 400px;
-    padding: 30px 0 20px 0;
+    width: 380px;
+    padding: 30px 10px 20px 10px;
 }
 
 #setting-frame{
@@ -23,12 +24,17 @@ body {
     display: grid;
 }
 
-#user-setting-container label{
+#user-setting-container label {
     margin-top: 5px;
 }
 
 #interface-setting-container{
     margin-top: 5px;
+    display: grid;
+}
+
+#desactivated-info {
+    font-size: 11px;
 }
 
 #quickstart-button{
