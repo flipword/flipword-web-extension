@@ -13,10 +13,11 @@ function buttonPopup() {
 }
 
 function openHoverPopup(event) {
+    const selection = window.getSelection().toString();
     event.preventDefault()
     event.cancelBubble = true;
     closeButtonPopup()
-    chrome.runtime.sendMessage({object: 'displayPopup'});
+    chrome.runtime.sendMessage({object: 'displayPopup', selection: selection});
 }
 
 function closeButtonPopup() {

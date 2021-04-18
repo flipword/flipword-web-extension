@@ -11,6 +11,8 @@ const config = {
 };
 firebase.initializeApp(config);
 
+const translateBaseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
+
 // Init translate service
 const Http = new XMLHttpRequest();
 
@@ -97,15 +99,15 @@ function updateForeignLanguage(language){
 
 function insertCard(nativeWord, foreignWord) {
   const userId = firebase.auth().currentUser.uid;
-  firebase.firestore().collection('dictionary').doc(userId).collection('fr-en').add({nativeWord: nativeWord, foreignWord: foreignWord, nbSuccess: 0, nbErrors: 0})
+  firebase.firestore().collection('dictionary').doc(userId)
+      .collection(`${user.nativeLanguageIsoCode}-${user.foreignLanguageIsoCode}`)
+      .add({nativeWord: nativeWord, foreignWord: foreignWord, nbSuccess: 0, nbErrors: 0})
     .catch(() => {console.error()})
 }
 
-// TODO: refacto translate method
 function translateWordForPopup(word) {
-    const baseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
-    const queryParam = '?from=fr&to=en&api-version=3.0'
-    Http.open('POST', baseUrl+queryParam);
+    const queryParam = `?from=${user.nativeLanguageIsoCode}&to=${user.foreignLanguageIsoCode}&api-version=3.0`
+    Http.open('POST', translateBaseUrl+queryParam);
     Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
     Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
     Http.setRequestHeader('Content-Type', 'application/json');
@@ -119,34 +121,37 @@ function translateWordForPopup(word) {
     }
 }
 
-function translateWordForContentScript(word) {
-    const baseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
-    const queryParam = '?from=en&to=fr&api-version=3.0'
-    Http.open('POST', baseUrl+queryParam);
+function displayHoverPopup(foreignWord) {
+    const queryParam = `?from=${user.foreignLanguageIsoCode}&to=${user.nativeLanguageIsoCode}&api-version=3.0`
+    Http.open('POST', translateBaseUrl+queryParam);
     Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
     Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
     Http.setRequestHeader('Content-Type', 'application/json');
-    Http.send(`[{"Text":"${word}"}]`);
+    Http.send(`[{"Text":"${foreignWord}"}]`);
     Http.onreadystatechange = function () {
         if(Http.readyState == 4){
             const response = JSON.parse(Http.responseText);
-            const word = response[0].translations[0].text
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                chrome.tabs.sendMessage(tabs[0].id, {object: 'translate', word: word});
+            const nativeWord = response[0].translations[0].text
+            const params = {
+                nativeWord: nativeWord,
+                foreignWord: foreignWord,
+                nativeLanguageLabel: currentLanguage.nativeLanguageLabel,
+                foreignLanguageLabel: currentLanguage.foreignLanguageLabel
+            }
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                chrome.tabs.executeScript(tabs[0].id, {
+                    code: `var params = ${JSON.stringify(params)}`
+                }, function() {
+                    chrome.tabs.executeScript(tabs[0].id, {
+                        file: 'content-scripts/hoverPopup.js',
+                    });
+                });
+                chrome.tabs.insertCSS(tabs[0].id, {
+                    file: 'content-scripts/hoverPopup.css'
+                });
             });
         }
     }
-}
-
-function displayHoverPopup() {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        chrome.tabs.executeScript(tabs[0].id, {
-            file: 'content-scripts/hoverPopup.js'
-        });
-        chrome.tabs.insertCSS(tabs[0].id, {
-            file: 'content-scripts/hoverPopup.css'
-        });
-    });
 }
 
 chrome.runtime.onInstalled.addListener(function() {
@@ -154,7 +159,6 @@ chrome.runtime.onInstalled.addListener(function() {
         title: 'Add to your FlipWord collection',
         contexts: ['selection'],
     });
-    initApp();
 });
 
 chrome.contextMenus.onClicked.addListener(function () {
@@ -163,7 +167,7 @@ chrome.contextMenus.onClicked.addListener(function () {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-      if (request.object == 'insertWord' && !!request.nativeWord && !!request.freignWord){
+      if (request.object == 'insertWord' && !!request.nativeWord && !!request.foreignWord){
           insertCard(request.nativeWord, request.foreignWord);
           sendResponse({success: true});
       } else if(request.object == 'insertWord') {
@@ -173,7 +177,7 @@ chrome.runtime.onMessage.addListener(
       } else if(request.object == 'requestTranslate' && request.from == 'contentScript') {
           translateWordForContentScript(request.word)
       } else if(request.object == 'displayPopup'){
-          displayHoverPopup()
+          displayHoverPopup(request.selection);
       } else if(request.object == 'getCurrentLanguages'){
           sendResponse({currentLanguages: currentLanguage});
       } else if(request.object == 'updateNativeLanguage'){
@@ -196,3 +200,7 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
         });
     }
 })
+
+window.onload = async function() {
+    await initApp();
+};

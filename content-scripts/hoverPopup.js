@@ -1,5 +1,4 @@
-const selection = window.getSelection().toString();
-
+console.log("params: ", params);
 const containerNativeWord = document.createElement("div")
 containerNativeWord.className = "flip-word-input-container"
 const inputNativeWord = document.createElement("input")
@@ -8,8 +7,9 @@ inputNativeWord.id = "flip-word-input-native-word"
 inputNativeWord.className = "flip-word-input-word"
 inputNativeWord.name = "flip-word-input-native-word"
 inputNativeWord.type = "text"
+inputNativeWord.value = params.nativeWord
 labelInputNativeWord.htmlFor = "flip-word-input-native-word"
-labelInputNativeWord.innerText = "French:"
+labelInputNativeWord.innerText = `${params.nativeLanguageLabel}:`
 containerNativeWord.appendChild(labelInputNativeWord)
 containerNativeWord.appendChild(inputNativeWord)
 
@@ -21,9 +21,9 @@ inputForeignWord.id = "flip-word-input-foreign-word"
 inputForeignWord.name = "flip-word-input-foreign-word"
 inputForeignWord.className = "flip-word-input-word"
 inputForeignWord.type = "text"
-inputForeignWord.value = selection
+inputForeignWord.value = params.foreignWord
 labelInputForeignWord.htmlFor = "flip-word-input-foreign-word"
-labelInputForeignWord.innerText = "English:"
+labelInputForeignWord.innerText = `${params.foreignLanguageLabel}:`
 containerForeignWord.appendChild(labelInputForeignWord)
 containerForeignWord.appendChild(inputForeignWord)
 
@@ -61,15 +61,6 @@ function submitWord() {
     chrome.runtime.sendMessage({object: 'insertWord', nativeWord: inputNativeWord.value, foreignWord: inputForeignWord.value});
     closePopup()
 }
-
-chrome.runtime.sendMessage({object: 'requestTranslate', from: 'contentScript', word: selection});
-
-chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-        if(request.object == 'translate'){
-            inputNativeWord.value = request.word;
-        }
-    })
 
 window.onclick = function () {
     closePopup()
