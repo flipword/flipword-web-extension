@@ -32,6 +32,10 @@ function initUser() {
             getUser();
             chrome.browserAction.setPopup({ popup: "home/home.html"});
             chrome.runtime.sendMessage({object: 'signIn', user: !!userParam});
+            chrome.contextMenus.create({
+                title: 'Add to your FlipWord collection',
+                contexts: ['selection'],
+            });
         } else {
             chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
         }
@@ -163,13 +167,6 @@ function displayHoverPopup(foreignWord) {
     }
 }
 
-chrome.runtime.onInstalled.addListener(function() {
-    chrome.contextMenus.create({
-        title: 'Add to your FlipWord collection',
-        contexts: ['selection'],
-    });
-});
-
 chrome.contextMenus.onClicked.addListener(function () {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         chrome.tabs.executeScript(tabs[0].id, {
@@ -202,7 +199,7 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.webNavigation.onCompleted.addListener(function(details) {
-    if(details.url.startsWith('http') || details.url.startsWith('https')){
+    if(details.url.startsWith('https') && !!firebase.auth().currentUser){
         chrome.storage.local.get(['popupButtonChecked'], function(result) {
             if(!!JSON.stringify(result.popupButtonChecked) && result.popupButtonChecked) {
                 chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
