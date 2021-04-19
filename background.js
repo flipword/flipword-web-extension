@@ -20,16 +20,21 @@ const Http = new XMLHttpRequest();
 let user = null;
 let currentLanguage = {nativeLanguageLabel: null, foreignLanguageLabel: null};
 
-async function initApp() {
-    await firebase.auth().onAuthStateChanged(async function(user) {
-      if(user) {
-          await getLanguages();
-          await getUser();
-          chrome.browserAction.setPopup({ popup: "home/home.html"});
-      } else {
-          chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
-      }
-      chrome.runtime.sendMessage({object: 'signIn', user: !!user});
+function initApp() {
+    chrome.storage.local.clear();
+    chrome.storage.local.set({popupButtonChecked: true});
+    getLanguages();
+}
+
+function initUser() {
+    firebase.auth().onAuthStateChanged(function(userParam) {
+        if(userParam) {
+            getUser();
+            chrome.browserAction.setPopup({ popup: "home/home.html"});
+            chrome.runtime.sendMessage({object: 'signIn', user: !!userParam});
+        } else {
+            chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
+        }
     });
 }
 
@@ -44,25 +49,26 @@ function signInWithPopup(){
         console.log(error)});
 }
 
-async function getUser(){
+function getUser(){
     const userId = firebase.auth().currentUser.uid;
-    await firebase.firestore().collection('profile').doc(userId).get().then((res) => {
+    firebase.firestore().collection('profile').doc(userId).get().then((res) => {
         user = res.data();
         chrome.runtime.sendMessage({object: 'userUpdated', user: user});
         getCurrentLanguage()
-        return;
     }).catch((err) => {
         console.log("error:", err)
     });
 }
 
-async function getLanguages(){
-    await chrome.storage.local.get(['languages'], async function(result) {
-        if(!result){
-            await firebase.firestore().collection('language').get().then((res) => {
+function getLanguages(){
+    chrome.storage.local.get(['languages'], function(result) {
+        console.log("languages: ", result.languages)
+        if(!result.languages){
+            firebase.firestore().collection('language').get().then((res) => {
                 const languages = res.docs.map((elem) => elem.data());
                 chrome.storage.local.set({languages: languages});
-                return;
+                initUser()
+                console.log("language setted")
             }).catch((err) => {
                 console.log("error:", err);
             });
@@ -71,6 +77,7 @@ async function getLanguages(){
 }
 
 function getCurrentLanguage(){
+    console.log("get current")
     chrome.storage.local.get(['languages'], function(result) {
         result.languages.forEach((elem) => {
             if(elem.isoCode == user.nativeLanguageIsoCode){
