@@ -66,4 +66,6 @@ window.onclick = function () {
     closePopup()
 }
 
-displayPopup()
+if(!!window.getSelection().toString()){
+    displayPopup()
+}
