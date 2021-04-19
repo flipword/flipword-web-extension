@@ -60,6 +60,7 @@
     all: initial;
     font-family: Arial !important;
     color: black !important;
+    cursor: pointer !important;
     font-weight: bold !important;
     border: 0 !important;
     padding: 9px 10px 9px 10px !important;
