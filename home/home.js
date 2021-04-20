@@ -30,9 +30,7 @@ function openOption() {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.object == 'signIn' && !request.user) {
-            window.location = 'credentials/credentials.html';
-        } else if(request.object == 'translate'){
+        if(request.object == 'translate'){
             document.getElementById('foreign-word').value = request.word;
         }
     })

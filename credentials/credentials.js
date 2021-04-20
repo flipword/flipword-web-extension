@@ -13,8 +13,8 @@ async function startSignIn() {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-      if (request.object == 'signIn' && request.user){
-        window.location = 'home/home.html';
+      if (request.object == 'dataLoaded'){
+        window.location = '../home/home.html';
       }
     }
 )

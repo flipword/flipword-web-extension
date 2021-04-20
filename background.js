@@ -23,15 +23,10 @@ let currentLanguage = {nativeLanguageLabel: null, foreignLanguageLabel: null};
 function initApp() {
     chrome.storage.local.clear();
     chrome.storage.local.set({popupButtonChecked: true});
-    getLanguages();
-}
-
-function initUser() {
     firebase.auth().onAuthStateChanged(function(userParam) {
         if(userParam) {
-            getUser();
+            getLanguages();
             chrome.browserAction.setPopup({ popup: "home/home.html"});
-            chrome.runtime.sendMessage({object: 'signIn', user: !!userParam});
             chrome.contextMenus.create({
                 title: 'Add to your FlipWord collection',
                 contexts: ['selection'],
@@ -66,13 +61,11 @@ function getUser(){
 
 function getLanguages(){
     chrome.storage.local.get(['languages'], function(result) {
-        console.log("languages: ", result.languages)
         if(!result.languages){
             firebase.firestore().collection('language').get().then((res) => {
                 const languages = res.docs.map((elem) => elem.data());
                 chrome.storage.local.set({languages: languages});
-                initUser()
-                console.log("language setted")
+                getUser()
             }).catch((err) => {
                 console.log("error:", err);
             });
@@ -81,7 +74,6 @@ function getLanguages(){
 }
 
 function getCurrentLanguage(){
-    console.log("get current")
     chrome.storage.local.get(['languages'], function(result) {
         result.languages.forEach((elem) => {
             if(elem.isoCode == user.nativeLanguageIsoCode){
@@ -90,6 +82,7 @@ function getCurrentLanguage(){
                 currentLanguage.foreignLanguageLabel = elem.label;
             }
         });
+        chrome.runtime.sendMessage({object: 'dataLoaded'});
     })
 }
 

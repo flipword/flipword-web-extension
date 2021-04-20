@@ -48,7 +48,13 @@ function displayPopup() {
     let relative=document.body.parentNode.getBoundingClientRect()
     divContainer.style.top = `${rects.bottom - relative.top}px`
     divContainer.style.left = `${rects.right}px`
+    divContainer.onmousedown = (event) => keepSelection(event)
     document.body.appendChild(divContainer)
+}
+
+function keepSelection(event) {
+    event.preventDefault()
+    event.cancelBubble = true;
 }
 
 function closePopup() {

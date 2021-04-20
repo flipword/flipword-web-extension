@@ -14,7 +14,6 @@ function initApp(){
 }
 
 function changeOptionPopup(checked) {
-    console.log('isChecked: ', checked)
     const checkboxButtonPopup = document.getElementById('button-popup');
     checkboxButtonPopup.checked = checked;
     chrome.storage.local.set({popupButtonChecked: checked});
