@@ -3,6 +3,7 @@ html{
 }
 
 body {
+    overflow: hidden;
     color: #2b2b2b;
     font-size: 14px;
     width: 400px;
