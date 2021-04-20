@@ -58,7 +58,7 @@ function closePopup() {
 }
 
 function submitWord() {
-    chrome.runtime.sendMessage({object: 'insertWord', nativeWord: inputNativeWord.value, foreignWord: inputForeignWord.value});
+    chrome.runtime.sendMessage({object: 'insertWord', nativeWord: params.nativeWord, foreignWord: params.foreignWord});
     closePopup()
 }
 
