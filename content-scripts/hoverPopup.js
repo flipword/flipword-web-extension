@@ -59,8 +59,10 @@ function keepSelection(event) {
 
 function closePopup() {
     let elementToDelete = document.getElementById("flip-word-hover-popup-container");
-    if(elementToDelete)
+    if(elementToDelete) {
         elementToDelete.remove();
+        chrome.runtime.sendMessage({object: 'popupIsClosed'});
+    }
 }
 
 function submitWord() {

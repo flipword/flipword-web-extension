@@ -160,6 +160,12 @@ function displayHoverPopup(foreignWord) {
     }
 }
 
+function eventPopupIsClosed() {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {object: "popupIsClosed"});
+    });
+}
+
 chrome.contextMenus.onClicked.addListener(function () {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         chrome.tabs.executeScript(tabs[0].id, {
@@ -181,6 +187,8 @@ chrome.runtime.onMessage.addListener(
           translateWordForContentScript(request.word)
       } else if(request.object == 'displayPopup'){
           displayHoverPopup(request.selection);
+      } else if(request.object == 'popupIsClosed'){
+          eventPopupIsClosed()
       } else if(request.object == 'getCurrentLanguages'){
           sendResponse({currentLanguages: currentLanguage});
       } else if(request.object == 'updateNativeLanguage'){
