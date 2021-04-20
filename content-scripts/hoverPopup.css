@@ -38,7 +38,8 @@
 
 .flip-word-input-container label{
     all: initial;
-    width: fit-content;
+    z-index: 1 !important;
+    width: fit-content !important;
     font-family: Arial !important;
     color: black !important;
     font-size: 15px !important;
