@@ -19,10 +19,8 @@
     "open_in_tab": false
   },
   "permissions": [
-    "identity",
     "contextMenus",
     "activeTab",
-    "tabs",
     "storage",
     "webNavigation",
     "https://*/"
