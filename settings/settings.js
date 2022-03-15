@@ -2,7 +2,8 @@ let languages = []
 let popupButton = true
 
 function initApp(){
-    chrome.runtime.sendMessage({object: 'getUser'});
+    document.getElementById('google-button').addEventListener('click', startSignInGoogle, false);
+    document.getElementById('apple-button').addEventListener('click', startSignInApple, false);
     chrome.storage.local.get(['languages'], function(result) {
         languages = result.languages
     })
@@ -11,18 +12,23 @@ function initApp(){
             popupButton = result.popupButtonChecked;
         }
     })
+    chrome.runtime.sendMessage({object: 'getUser'});
+}
+
+async function startSignInGoogle() {
+    document.getElementById('google-button').disabled = true;
+    chrome.extension.getBackgroundPage().signInWithGoogle();
+}
+
+async function startSignInApple() {
+    document.getElementById('google-button').disabled = true;
+    chrome.extension.getBackgroundPage().signInWithApple();
 }
 
 function changeOptionPopup(checked) {
     const checkboxButtonPopup = document.getElementById('button-popup');
     checkboxButtonPopup.checked = checked;
     chrome.storage.local.set({popupButtonChecked: checked});
-}
-
-function removeChilds(parent) {
-    while (parent.lastChild) {
-        parent.removeChild(parent.lastChild);
-    }
 }
 
 function updateNativeLanguage(){
@@ -36,12 +42,11 @@ function updateForeignLanguage(){
 }
 
 function displayUserInfo(user){
-     const loginContainer = document.getElementById('quickstart-button-container');
-     if(loginContainer){
-         loginContainer.remove();
-     }
-     const container = document.getElementById('user-setting-container');
-    removeChilds(container);
+     const parent = document.getElementById('user-setting-container');
+     const container = document.createElement('div');
+     container.id = 'user-info-container'
+     const containerButton = document.getElementById('container-button');
+     containerButton.hidden = true;
 
      const currentUserSpan = document.createElement('span');
      currentUserSpan.id = 'current-user-email';
@@ -88,27 +93,48 @@ function displayUserInfo(user){
          currentForeignLanguage.appendChild(option);
      })
      currentForeignLanguage.onchange = updateForeignLanguage
+    const logoutButton = document.createElement('button')
+    logoutButton.id = 'logout-button';
+    logoutButton.innerText = 'Logout'
+    logoutButton.addEventListener('click', logout, false);
 
      container.appendChild(currentUserSpan);
      container.appendChild(currentNativeLanguageLabel);
      container.appendChild(currentNativeLanguage);
      container.appendChild(currentForeignLanguageLabel);
      container.appendChild(currentForeignLanguage);
-
+     container.appendChild(logoutButton);
+     parent.appendChild(container);
      currentForeignLanguage.value = user.foreignLanguageIsoCode;
      currentNativeLanguage.value = user.nativeLanguageIsoCode;
+}
+
+function hideUserInfo() {
+    const container = document.getElementById('user-info-container');
+    const containerButton = document.getElementById('container-button');
+    containerButton.hidden = false;
+    if(container != null){
+        container.remove()
+    }
+
 }
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.object == 'userUpdated' && !!request.user){
             displayUserInfo(request.user)
         }
+        else if (request.object == 'logout'){
+            hideUserInfo()
+        }
+        else if (request.object == 'login'){
+            chrome.runtime.sendMessage({object: 'getUser'});
+        }
     }
 );
 
-// chrome.storage.local.get(['languages'], function(result) {
-//     languages = result.languages
-// })
+function logout() {
+    chrome.extension.getBackgroundPage().logout();
+}
 
 
 window.onload = function() {

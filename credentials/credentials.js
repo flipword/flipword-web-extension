@@ -1,14 +1,20 @@
 function initApp() {
-  document.getElementById('quickstart-button').addEventListener('click', startSignIn, false);
+  document.getElementById('google-button').addEventListener('click', startSignInGoogle, false);
+  document.getElementById('apple-button').addEventListener('click', startSignInApple, false);
 }
 
 
 /**
  * Starts the sign-in process.
  */
-async function startSignIn() {
-  document.getElementById('quickstart-button').disabled = true;
-  chrome.extension.getBackgroundPage().signInWithPopup();
+async function startSignInGoogle() {
+  document.getElementById('google-button').disabled = true;
+  chrome.extension.getBackgroundPage().signInWithGoogle();
+}
+
+async function startSignInApple() {
+    document.getElementById('google-button').disabled = true;
+    chrome.extension.getBackgroundPage().signInWithApple();
 }
 
 chrome.runtime.onMessage.addListener(
@@ -20,5 +26,6 @@ chrome.runtime.onMessage.addListener(
 )
 
 window.onload = function() {
+    console.log("BONJOUR")
   initApp();
 };

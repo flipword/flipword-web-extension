@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "FlipWord",
   "description": "FlipWord web extension.",
-  "version": "0.1",
+  "version": "0.2",
   "icons": {
     "128": "icon.png"
   },
@@ -23,18 +23,18 @@
     "activeTab",
     "storage",
     "webNavigation",
-    "https://*/"
+    "https://*/",
+    "identity"
   ],
   "web_accessible_resources": [
     "icon.png"
   ],
-  "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com https://apis.google.com; object-src 'self'",
+  "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://appleid.apple.com/ https://appleid.cdn-apple.com/ https://*.firebaseio.com https://www.googleapis.com https://apis.google.com; object-src 'self'",
   "oauth2": {
     "client_id": "186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile"
     ]
-  },
-  "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvxzIlg2CbFfnubOqCUkA\nwDmgt1mWFdZG35gOGhc9mpLo3e7Mb3r2vUr9bhGdu+3gWSl5U4KkVa9hYRrHa2UN\ne1jxWNDQ0hRvckeH1DrrCPzqzR35QZxQl6dvsrg0Y3WVwnn0vVyAhDUoP6sQ761p\nLY1egMMzmeHQ79jXIClnGbbkqmtN2DBfMVKGOISGIBInA5VhHy3PU01j3cM4N00A\nRbk1YLLPj7GbZGVFv1wfyDOc8d+qGuYr6ga5D49ZFBnqWyuFWm39dKFib3ddHcMC\nOYNPnW9T+8nD5ap6qvKX7d6I5WgxGQxxYBSCvAXujuIVOrcbRFXvgI2jqVcyKmMf\n7wIDAQAB\n-----END PUBLIC KEY-----"
+  }
 }

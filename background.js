@@ -1,5 +1,5 @@
 // Initialize Firebase
-const config = {
+const firebaseConfig = {
   apiKey: "AIzaSyCuon7WUdd609Y85oBJJbD8ul3eGoO8RDs",
   authDomain: "flutter-flip-card.firebaseapp.com",
   databaseURL: "https://flutter-flip-card.firebaseio.com",
@@ -9,7 +9,16 @@ const config = {
   appId: "1:186673725150:web:2e45457bb4499811f30c4f",
   measurementId: "G-K5QTK9Y7PD"
 };
-firebase.initializeApp(config);
+
+const appleConfig = {
+    clientId : 'com.flipword.app.register',
+    scope: 'email name',
+    redirectURI : 'https://bfcomejcblnpegdjhhmmpneookialdpc.chromiumapp.org',
+    usePopup : true
+}
+
+firebase.initializeApp(firebaseConfig);
+AppleID.auth.init(appleConfig);
 
 const translateBaseUrl = 'https://api.cognitive.microsofttranslator.com/translate';
 
@@ -38,14 +47,48 @@ function initApp() {
 }
 
 // TODO: env var login_hint
-function signInWithPopup(){
+function signInWithGoogle(){
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({
         'login_hint': '186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com'
     });
     firebase.auth().signInWithPopup(provider)
+        .then(() => {
+            chrome.runtime.sendMessage({object: 'login'});
+            chrome.browserAction.setPopup({ popup: "home/home.html"});
+        })
       .catch((error) => {
         console.log(error)});
+}
+
+function signInWithApple(){
+    let authURL = "https://appleid.apple.com/auth/authorize";
+    authURL += `?client_id=${appleConfig.clientId}`;
+    authURL += `&redirect_uri=${encodeURIComponent(appleConfig.redirectURI)}`;
+    authURL += '&response_type=code%20id_token&response_mode=fragment';
+    chrome.identity.launchWebAuthFlow({
+        interactive: true,
+        url: authURL
+    }, function (redirectUrl) {
+        let idToken = redirectUrl.substring(redirectUrl.indexOf('id_token=') + 9)
+        let provider = new firebase.auth.OAuthProvider('apple.com');
+        let credential = provider.credential({
+            idToken: idToken,
+        });
+        firebase.auth().signInWithCredential(credential).then(() => {
+            chrome.runtime.sendMessage({object: 'login'});
+            chrome.browserAction.setPopup({ popup: "home/home.html"});
+        }).catch((error) => {
+            console.log(error)}
+        );
+    });
+}
+
+function logout() {
+    firebase.auth().signOut().then(() => {
+        chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
+        chrome.runtime.sendMessage({object: 'logout'});
+    })
 }
 
 function getUser(){
