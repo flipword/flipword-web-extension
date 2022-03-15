@@ -27,22 +27,6 @@
     justify-content: center;
 }
 
-.extension-button{
-    font-weight: bold;
-    cursor: pointer;
-    border: 0;
-    padding: 9px 10px 9px 10px;
-    border-radius: 3px;
-    background-color: #FF9100;
-    box-shadow: 2px 2px 2px #9b9b9b;
-}
-
-.extension-button svg{
-    width: 20px;
-    height: 20px;
-    margin-bottom: -5px;
-}
-
 #setting-button{
     color: #0288d1;
     cursor: pointer;
