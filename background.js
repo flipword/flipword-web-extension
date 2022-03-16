@@ -17,6 +17,8 @@ const appleConfig = {
     usePopup : true
 }
 
+const translateApiKey = 'cc66c8aff9574a8ebbc3d02e5a42f0a8'
+
 firebase.initializeApp(firebaseConfig);
 AppleID.auth.init(appleConfig);
 
@@ -183,7 +185,7 @@ function translateWordForPopup(word) {
 function displayHoverPopup(foreignWord) {
     const queryParam = `?from=${user.foreignLanguageIsoCode}&to=${user.nativeLanguageIsoCode}&api-version=3.0`
     Http.open('POST', translateBaseUrl+queryParam);
-    Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
+    Http.setRequestHeader('Ocp-Apim-Subscription-Key', translateApiKey);
     Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
     Http.setRequestHeader('Content-Type', 'application/json');
     Http.send(`[{"Text":"${foreignWord}"}]`);
