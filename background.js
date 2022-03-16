@@ -35,16 +35,16 @@ function initApp() {
     chrome.storage.local.clear();
     chrome.storage.local.set({popupButtonChecked: true});
     firebase.auth().onAuthStateChanged(function(userParam) {
-        if(userParam) {
-            getLanguages();
-            chrome.browserAction.setPopup({ popup: "home/home.html"});
-            chrome.contextMenus.create({
-                title: 'Add to your FlipWord collection',
-                contexts: ['selection'],
-            });
-        } else {
-            chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
-        }
+            if(userParam) {
+                getLanguages();
+                chrome.contextMenus.create({
+                    title: 'Add to your FlipWord collection',
+                    contexts: ['selection'],
+                });
+                chrome.browserAction.setPopup({ popup: "home/home.html"});
+            } else {
+                chrome.browserAction.setPopup({ popup: "credentials/credentials.html"});
+            }
     });
 }
 
@@ -57,10 +57,9 @@ function signInWithGoogle(){
     firebase.auth().signInWithPopup(provider)
         .then(() => {
             chrome.runtime.sendMessage({object: 'login'});
-            chrome.browserAction.setPopup({ popup: "home/home.html"});
         })
-      .catch((error) => {
-        console.log(error)});
+        .catch((error) => {
+            console.log(error)});
 }
 
 function signInWithApple(){
@@ -114,6 +113,8 @@ function getLanguages(){
             }).catch((err) => {
                 console.log("error:", err);
             });
+        }else {
+            getUser()
         }
     });
 }
@@ -131,6 +132,7 @@ function getCurrentLanguage(){
                     currentLanguage.foreignLanguageLabel = elem.label;
                 }
             });
+            console.log("dataLoaded")
             chrome.runtime.sendMessage({object: 'dataLoaded'});
         })
     })

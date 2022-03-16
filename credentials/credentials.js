@@ -9,17 +9,20 @@ function initApp() {
  */
 async function startSignInGoogle() {
   document.getElementById('google-button').disabled = true;
+  document.getElementById('apple-button').disabled = true;
   chrome.extension.getBackgroundPage().signInWithGoogle();
 }
 
 async function startSignInApple() {
     document.getElementById('google-button').disabled = true;
+    document.getElementById('apple-button').disabled = true;
     chrome.extension.getBackgroundPage().signInWithApple();
 }
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
       if (request.object == 'dataLoaded'){
+          console.log("windows location")
         window.location = '../home/home.html';
       }
     }
