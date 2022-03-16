@@ -3,6 +3,7 @@ function initApp() {
     document.getElementById('translate-button').addEventListener('click', translateWord, false);
     document.getElementById('setting-button').addEventListener('click', openOption, false);
     document.getElementById('train-button').addEventListener('click', redirectToApp, false);
+    document.getElementById('swap-button').addEventListener('click', requestSwapLanguage, false);
     chrome.runtime.sendMessage({object: "getCurrentLanguages"}, function(response) {
         const nativeLanguageLabel = response.currentLanguages.nativeLanguageLabel
         const foreignLanguageLabel = response.currentLanguages.foreignLanguageLabel
@@ -33,10 +34,26 @@ function openOption() {
     chrome.runtime.openOptionsPage()
 }
 
+function requestSwapLanguage() {
+    chrome.extension.getBackgroundPage().swapLanguage()
+}
+
+function languageSwapped() {
+    chrome.runtime.sendMessage({object: "getCurrentLanguages"}, function(response) {
+        const nativeLanguageLabel = response.currentLanguages.nativeLanguageLabel
+        const foreignLanguageLabel = response.currentLanguages.foreignLanguageLabel
+        document.getElementById('native-word-label').innerText = `${nativeLanguageLabel}:`
+        document.getElementById('foreign-word-label').innerText = `${foreignLanguageLabel}:`
+    });
+}
+
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if(request.object == 'translate'){
             document.getElementById('foreign-word').value = request.word;
+        }
+        if(request.object == 'languageSwapped'){
+            languageSwapped();
         }
     })
 

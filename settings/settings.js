@@ -41,10 +41,21 @@ function updateForeignLanguage(){
     chrome.runtime.sendMessage({object: 'updateForeignLanguage', languageIsoCode: select.value});
 }
 
+function removeChildren(parent) {
+    while (parent.lastChild) {
+        parent.removeChild(parent.lastChild);
+    }
+}
+
 function displayUserInfo(user){
+     let container = document.getElementById('user-info-container');
+     if(container != null) {
+         removeChildren(container)
+     } else {
+         container = document.createElement('div');
+         container.id = 'user-info-container'
+     }
      const parent = document.getElementById('user-setting-container');
-     const container = document.createElement('div');
-     container.id = 'user-info-container'
      const containerButton = document.getElementById('container-button');
      containerButton.hidden = true;
 

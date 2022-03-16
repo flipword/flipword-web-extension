@@ -1,12 +1,11 @@
 .word-input-container{
-    width: 280px;
     margin-left: 20px;
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
 .word-input-container input{
-    width: 90%;
+    width: 98%;
     height: 30px;
     border-radius: 3px;
     border: none;
@@ -25,6 +24,56 @@
 .button-container{
     display: flex;
     justify-content: center;
+}
+
+.translate-container-parent{
+    display: flex;
+    width: 100%;
+}
+
+.translate-container-part1{
+    flex: 1;
+    height: 100%;
+}
+
+.swap-arrow {
+    width: 20px;
+    height: auto;
+}
+
+.translate-container-part2{
+    width: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 10px;
+    padding-left: 2px;
+}
+
+.swap-button-container {
+    margin-bottom: 15px;
+}
+
+#arrow-1{
+    margin-bottom: 3px;
+}
+
+#arrow-2{
+    margin-top: 6px;
+}
+
+#swap-button{
+    background-color: #FF9100;
+    box-shadow: 2px 2px 2px #9b9b9b;
+    padding: 6px 8px 3px 8px;
+    border: 0;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#swap-button svg{
+    width: 15px;
+    height: auto;
 }
 
 #setting-button{

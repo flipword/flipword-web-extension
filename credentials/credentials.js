@@ -26,6 +26,5 @@ chrome.runtime.onMessage.addListener(
 )
 
 window.onload = function() {
-    console.log("BONJOUR")
   initApp();
 };

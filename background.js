@@ -117,17 +117,23 @@ function getLanguages(){
 }
 
 function getCurrentLanguage(){
-    chrome.storage.local.get(['languages'], function(result) {
-        result.languages.forEach((elem) => {
-            if(elem.isoCode == user.nativeLanguageIsoCode){
-                currentLanguage.nativeLanguageLabel = elem.label;
-            } else if (elem.isoCode == user.foreignLanguageIsoCode){
-                currentLanguage.foreignLanguageLabel = elem.label;
-            }
-        });
-        chrome.runtime.sendMessage({object: 'dataLoaded'});
+    chrome.storage.local.get(['isSwap'], function(result) {
+        if(!JSON.stringify(result.isSwap) ) {
+            chrome.storage.local.set({isSwap: false});
+        }
+        chrome.storage.local.get(['languages'], function(result) {
+            result.languages.forEach((elem) => {
+                if(elem.isoCode == user.nativeLanguageIsoCode){
+                    currentLanguage.nativeLanguageLabel = elem.label;
+                } else if (elem.isoCode == user.foreignLanguageIsoCode){
+                    currentLanguage.foreignLanguageLabel = elem.label;
+                }
+            });
+            chrome.runtime.sendMessage({object: 'dataLoaded'});
+        })
     })
 }
+
 
 function updateNativeLanguage(language){
     const userId = firebase.auth().currentUser.uid;
@@ -155,19 +161,23 @@ function insertCard(nativeWord, foreignWord) {
 }
 
 function translateWordForPopup(word) {
-    const queryParam = `?from=${user.nativeLanguageIsoCode}&to=${user.foreignLanguageIsoCode}&api-version=3.0`
-    Http.open('POST', translateBaseUrl+queryParam);
-    Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
-    Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
-    Http.setRequestHeader('Content-Type', 'application/json');
-    Http.send(`[{"Text":"${word}"}]`);
-    Http.onreadystatechange = function () {
-        if(Http.readyState == 4){
-            const response = JSON.parse(Http.responseText);
-            const word = response[0].translations[0].text
-            chrome.runtime.sendMessage({object: 'translate', word: word});
+    chrome.storage.local.get(['isSwap'], function(result) {
+        const fromIsoCode = result.isSwap ? user.foreignLanguageIsoCode : user.nativeLanguageIsoCode;
+        const toIsoCode = !result.isSwap ? user.foreignLanguageIsoCode : user.nativeLanguageIsoCode;
+        const queryParam = `?from=${fromIsoCode}&to=${toIsoCode}&api-version=3.0`
+        Http.open('POST', translateBaseUrl+queryParam);
+        Http.setRequestHeader('Ocp-Apim-Subscription-Key', 'cc66c8aff9574a8ebbc3d02e5a42f0a8');
+        Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
+        Http.setRequestHeader('Content-Type', 'application/json');
+        Http.send(`[{"Text":"${word}"}]`);
+        Http.onreadystatechange = function () {
+            if(Http.readyState == 4){
+                const response = JSON.parse(Http.responseText);
+                const word = response[0].translations[0].text
+                chrome.runtime.sendMessage({object: 'translate', word: word});
+            }
         }
-    }
+    })
 }
 
 function displayHoverPopup(foreignWord) {
@@ -179,28 +189,49 @@ function displayHoverPopup(foreignWord) {
     Http.send(`[{"Text":"${foreignWord}"}]`);
     Http.onreadystatechange = function () {
         if(Http.readyState == 4){
+            let nativeLanguageLabel = ''
+            let foreignLanguageLabel = ''
             const response = JSON.parse(Http.responseText);
             const nativeWord = response[0].translations[0].text
-            const params = {
-                nativeWord: nativeWord,
-                foreignWord: foreignWord,
-                nativeLanguageLabel: currentLanguage.nativeLanguageLabel,
-                foreignLanguageLabel: currentLanguage.foreignLanguageLabel
-            }
-            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                chrome.tabs.executeScript(tabs[0].id, {
-                    code: `var params = ${JSON.stringify(params)}`
-                }, function() {
+            chrome.storage.local.get(['languages'], function(result) {
+                result.languages.forEach((elem) => {
+                    if(elem.isoCode == user.nativeLanguageIsoCode){
+                        nativeLanguageLabel = elem.label;
+                    } else if (elem.isoCode == user.foreignLanguageIsoCode){
+                        foreignLanguageLabel = elem.label;
+                    }
+                });
+                const params = {
+                    nativeWord: nativeWord,
+                    foreignWord: foreignWord,
+                    nativeLanguageLabel: nativeLanguageLabel,
+                    foreignLanguageLabel: foreignLanguageLabel
+                }
+                chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                     chrome.tabs.executeScript(tabs[0].id, {
-                        file: 'content-scripts/hoverPopup.js',
+                        code: `var params = ${JSON.stringify(params)}`
+                    }, function() {
+                        chrome.tabs.executeScript(tabs[0].id, {
+                            file: 'content-scripts/hoverPopup.js',
+                        });
+                    });
+                    chrome.tabs.insertCSS(tabs[0].id, {
+                        file: 'content-scripts/hoverPopup.css'
                     });
                 });
-                chrome.tabs.insertCSS(tabs[0].id, {
-                    file: 'content-scripts/hoverPopup.css'
-                });
-            });
+            })
         }
     }
+}
+
+function swapLanguage() {
+    chrome.storage.local.get(['isSwap'], function(result) {
+        chrome.storage.local.set({isSwap: !result.isSwap});
+        const tmp = currentLanguage.nativeLanguageLabel
+        currentLanguage.nativeLanguageLabel = currentLanguage.foreignLanguageLabel
+        currentLanguage.foreignLanguageLabel = tmp
+        chrome.runtime.sendMessage({object: 'languageSwapped'});
+    })
 }
 
 function eventPopupIsClosed() {
