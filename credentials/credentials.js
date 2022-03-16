@@ -22,7 +22,6 @@ async function startSignInApple() {
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
       if (request.object == 'dataLoaded'){
-          console.log("windows location")
         window.location = '../home/home.html';
       }
     }

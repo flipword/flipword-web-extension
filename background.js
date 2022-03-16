@@ -132,7 +132,6 @@ function getCurrentLanguage(){
                     currentLanguage.foreignLanguageLabel = elem.label;
                 }
             });
-            console.log("dataLoaded")
             chrome.runtime.sendMessage({object: 'dataLoaded'});
         })
     })
