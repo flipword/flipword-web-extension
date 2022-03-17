@@ -11,15 +11,20 @@ function buttonPopup() {
     popupButton.style.top = `${rects.bottom - relative.top}px`
     popupButton.style.left = `${rects.right}px`
     popupButton.onmousedown = (event) => openHoverPopup(event)
-    document.body.appendChild(popupButton);
+    let selection = window.getSelection().toString()
+    if((encodeURI(selection).split('%0A').length < 2) && selection.length < 30){
+        document.body.appendChild(popupButton)
+    }
 }
 
+// (encodeURI(selection).split('%0A').length < 2) || selection.length < 30)
+
 function openHoverPopup(event) {
-    const selection = window.getSelection().toString();
+    const selection = window.getSelection().toString()
     event.preventDefault()
-    event.cancelBubble = true;
+    event.cancelBubble = true
     closeButtonPopup()
-    chrome.runtime.sendMessage({object: 'displayPopup', selection: selection});
+    chrome.runtime.sendMessage({object: 'displayPopup', selection: selection})
     popupIsDisplayed = true
 }
 

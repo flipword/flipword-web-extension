@@ -184,46 +184,46 @@ function translateWordForPopup(word) {
 }
 
 function displayHoverPopup(foreignWord) {
-    const queryParam = `?from=${user.foreignLanguageIsoCode}&to=${user.nativeLanguageIsoCode}&api-version=3.0`
-    Http.open('POST', translateBaseUrl+queryParam);
-    Http.setRequestHeader('Ocp-Apim-Subscription-Key', translateApiKey);
-    Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
-    Http.setRequestHeader('Content-Type', 'application/json');
-    Http.send(`[{"Text":"${foreignWord}"}]`);
-    Http.onreadystatechange = function () {
-        if(Http.readyState == 4){
-            let nativeLanguageLabel = ''
-            let foreignLanguageLabel = ''
-            const response = JSON.parse(Http.responseText);
-            const nativeWord = response[0].translations[0].text
-            chrome.storage.local.get(['languages'], function(result) {
-                result.languages.forEach((elem) => {
-                    if(elem.isoCode == user.nativeLanguageIsoCode){
-                        nativeLanguageLabel = elem.label;
-                    } else if (elem.isoCode == user.foreignLanguageIsoCode){
-                        foreignLanguageLabel = elem.label;
+        const queryParam = `?from=${user.foreignLanguageIsoCode}&to=${user.nativeLanguageIsoCode}&api-version=3.0`
+        Http.open('POST', translateBaseUrl+queryParam);
+        Http.setRequestHeader('Ocp-Apim-Subscription-Key', translateApiKey);
+        Http.setRequestHeader('Ocp-Apim-Subscription-Region','francecentral');
+        Http.setRequestHeader('Content-Type', 'application/json');
+        Http.send(`[{"Text":"${foreignWord}"}]`);
+        Http.onreadystatechange = function () {
+            if(Http.readyState == 4){
+                let nativeLanguageLabel = ''
+                let foreignLanguageLabel = ''
+                const response = JSON.parse(Http.responseText);
+                const nativeWord = response[0].translations[0].text
+                chrome.storage.local.get(['languages'], function(result) {
+                    result.languages.forEach((elem) => {
+                        if(elem.isoCode == user.nativeLanguageIsoCode){
+                            nativeLanguageLabel = elem.label;
+                        } else if (elem.isoCode == user.foreignLanguageIsoCode){
+                            foreignLanguageLabel = elem.label;
+                        }
+                    });
+                    const params = {
+                        nativeWord: nativeWord,
+                        foreignWord: foreignWord,
+                        nativeLanguageLabel: nativeLanguageLabel,
+                        foreignLanguageLabel: foreignLanguageLabel
                     }
-                });
-                const params = {
-                    nativeWord: nativeWord,
-                    foreignWord: foreignWord,
-                    nativeLanguageLabel: nativeLanguageLabel,
-                    foreignLanguageLabel: foreignLanguageLabel
-                }
-                chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                    chrome.tabs.executeScript(tabs[0].id, {
-                        code: `var params = ${JSON.stringify(params)}`
-                    }, function() {
+                    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                         chrome.tabs.executeScript(tabs[0].id, {
-                            file: 'content-scripts/hoverPopup.js',
+                            code: `var params = ${JSON.stringify(params)}`
+                        }, function() {
+                            chrome.tabs.executeScript(tabs[0].id, {
+                                file: 'content-scripts/hoverPopup.js',
+                            });
+                        });
+                        chrome.tabs.insertCSS(tabs[0].id, {
+                            file: 'content-scripts/hoverPopup.css'
                         });
                     });
-                    chrome.tabs.insertCSS(tabs[0].id, {
-                        file: 'content-scripts/hoverPopup.css'
-                    });
-                });
-            })
-        }
+                })
+            }
     }
 }
 
