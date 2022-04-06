@@ -24,12 +24,13 @@
     "storage",
     "webNavigation",
     "https://*/",
+    "http://*/",
     "identity"
   ],
   "web_accessible_resources": [
     "icon.png"
   ],
-  "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://appleid.apple.com/ https://appleid.cdn-apple.com/ https://*.firebaseio.com https://www.googleapis.com https://apis.google.com; object-src 'self'",
+  "content_security_policy":"script-src 'self' http://localhost:3000 https://www.gstatic.com/ https://appleid.apple.com/ https://appleid.cdn-apple.com/ https://*.firebaseio.com https://www.googleapis.com https://apis.google.com; object-src 'self'",
   "oauth2": {
     "client_id": "186673725150-jnvblj3u6a3ndbed71go1t7l09nq3psl.apps.googleusercontent.com",
     "scopes": [

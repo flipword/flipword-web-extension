@@ -57,6 +57,8 @@ function signInWithGoogle(){
     firebase.auth().signInWithPopup(provider)
         .then(() => {
             chrome.runtime.sendMessage({object: 'login'});
+            chrome.browserAction.setPopup({ popup: "home/home.html"});
+            loginSuccess()
         })
         .catch((error) => {
             console.log(error)});
@@ -79,9 +81,19 @@ function signInWithApple(){
         firebase.auth().signInWithCredential(credential).then(() => {
             chrome.runtime.sendMessage({object: 'login'});
             chrome.browserAction.setPopup({ popup: "home/home.html"});
+            loginSuccess()
         }).catch((error) => {
             console.log(error)}
         );
+    });
+}
+
+function loginSuccess() {
+    chrome.tabs.query({}, function (tabs) {
+        const tab = tabs.find((tab) => tab.url?.includes('flipword.io') ?? false)
+        if(tab){
+            chrome.tabs.sendMessage(tab.id, {object: "loginSuccessful"});
+        }
     });
 }
 
@@ -273,6 +285,13 @@ chrome.runtime.onMessage.addListener(
       } else if(request.object == 'updateForeignLanguage'){
           updateForeignLanguage(request.languageIsoCode)
       }
+      else if(request.object == 'flipwordAuthRequest'){
+          if(request.authMethod == 1){
+              signInWithGoogle()
+          } else if(request.authMethod == 2){
+              signInWithApple()
+          }
+      }
     }
 );
 
@@ -290,6 +309,13 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
                 });
             }
         })
+    }
+    if(details.url.includes('flipword.io')){
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+            chrome.tabs.executeScript(tabs[0].id, {
+                file: 'content-scripts/authRequestFromWebsite.js'
+            });
+        });
     }
 })
 
