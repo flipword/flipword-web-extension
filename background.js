@@ -320,16 +320,7 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 })
 
 chrome.management.onInstalled.addListener(function(info){
-    console.log("Installed, info: ", info.id);
-    alert("Installed, info: ", info.id);
-    chrome.tabs.create({url:"https://flipword.io"});
-
-})
-
-chrome.management.onEnabled.addListener(function(info){
-    console.log("Installed, info: ", info.id);
-    alert("enable, info: ", info.id);
-    chrome.tabs.create({url:"https://flipword.io"});
+    chrome.tabs.create({url:"https://flipword.io/welcome-extension"});
 })
 
 window.onload = async function() {
