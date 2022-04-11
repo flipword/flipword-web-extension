@@ -319,9 +319,10 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
     }
 })
 
-chrome.management.onInstalled.addListener(function(info){
+if(!localStorage.getItem('onBoarding')){
     chrome.tabs.create({url:"https://flipword.io/welcome-extension"});
-})
+    localStorage.setItem('onBoarding', 'done')
+}
 
 window.onload = async function() {
     await initApp();
