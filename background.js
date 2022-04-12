@@ -48,7 +48,6 @@ function initApp() {
     });
 }
 
-// TODO: env var login_hint
 function signInWithGoogle(){
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({
@@ -93,6 +92,12 @@ function loginSuccess() {
         const tab = tabs.find((tab) => tab.url?.includes('flipword.io') ?? false)
         if(tab){
             chrome.tabs.sendMessage(tab.id, {object: "loginSuccessful"});
+            chrome.tabs.executeScript(tab.id, {
+                file: 'content-scripts/buttonPopup.js'
+            });
+            chrome.tabs.insertCSS(tab.id, {
+                file: 'content-scripts/buttonPopup.css'
+            });
         }
     });
 }
