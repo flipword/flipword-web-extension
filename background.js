@@ -30,6 +30,7 @@ const Http = new XMLHttpRequest();
 // User infos
 let user = null;
 let currentLanguage = {nativeLanguageLabel: null, foreignLanguageLabel: null};
+let updatedLanguage = {nativeLanguage: null, foreignLanguage: null}
 
 function initApp() {
     chrome.storage.local.clear();
@@ -91,13 +92,18 @@ function loginSuccess() {
     chrome.tabs.query({}, function (tabs) {
         const tab = tabs.find((tab) => tab.url?.includes('flipword.io') ?? false)
         if(tab){
-            chrome.tabs.sendMessage(tab.id, {object: "loginSuccessful"});
-            chrome.tabs.executeScript(tab.id, {
-                file: 'content-scripts/buttonPopup.js'
-            });
-            chrome.tabs.insertCSS(tab.id, {
-                file: 'content-scripts/buttonPopup.css'
-            });
+            Promise.all([
+                updateNativeLanguage(updatedLanguage.nativeLanguage),
+                updateForeignLanguage(updatedLanguage.foreignLanguage)
+            ]).then(() => {
+                chrome.tabs.sendMessage(tab.id, {object: "loginSuccessful"});
+                chrome.tabs.executeScript(tab.id, {
+                    file: 'content-scripts/buttonPopup.js'
+                });
+                chrome.tabs.insertCSS(tab.id, {
+                    file: 'content-scripts/buttonPopup.css'
+                });
+            })
         }
     });
 }
@@ -114,7 +120,7 @@ function getUser(){
     firebase.firestore().collection('profile').doc(userId).get().then((res) => {
         user = res.data();
         chrome.runtime.sendMessage({object: 'userUpdated', user: user});
-        getCurrentLanguage()
+        loadCurrentLanguage()
     }).catch((err) => {
         console.log("error:", err)
     });
@@ -136,7 +142,8 @@ function getLanguages(){
     });
 }
 
-function getCurrentLanguage(){
+
+function loadCurrentLanguage(){
     chrome.storage.local.get(['isSwap'], function(result) {
         if(!JSON.stringify(result.isSwap) ) {
             chrome.storage.local.set({isSwap: false});
@@ -154,17 +161,22 @@ function getCurrentLanguage(){
     })
 }
 
-
 function updateNativeLanguage(language){
     const userId = firebase.auth().currentUser.uid;
-    firebase.firestore().collection('profile').doc(userId).update({'nativeLanguageIsoCode': language})
-        .then(() => getUser())
+    return firebase.firestore().collection('profile').doc(userId).update({'nativeLanguageIsoCode': language})
+        .then(() => {
+            getUser()
+            chrome.runtime.sendMessage({object: 'languageUpdated'})
+        })
 }
 
 function updateForeignLanguage(language){
     const userId = firebase.auth().currentUser.uid;
-    firebase.firestore().collection('profile').doc(userId).update({'foreignLanguageIsoCode': language})
-        .then(() => getUser())
+    return firebase.firestore().collection('profile').doc(userId).update({'foreignLanguageIsoCode': language})
+        .then(() => {
+            getUser()
+            chrome.runtime.sendMessage({object: 'languageUpdated'})
+        })
 }
 
 function insertCard(nativeWord, foreignWord) {
@@ -283,7 +295,7 @@ chrome.runtime.onMessage.addListener(
           displayHoverPopup(request.selection);
       } else if(request.object == 'popupIsClosed'){
           eventPopupIsClosed()
-      } else if(request.object == 'getCurrentLanguages'){
+      } else if(request.object == 'loadCurrentLanguages'){
           sendResponse({currentLanguages: currentLanguage});
       } else if(request.object == 'updateNativeLanguage'){
           updateNativeLanguage(request.languageIsoCode)
@@ -296,6 +308,8 @@ chrome.runtime.onMessage.addListener(
           } else if(request.authMethod == 2){
               signInWithApple()
           }
+          updatedLanguage.nativeLanguage = request.nativeLanguage
+          updatedLanguage.foreignLanguage = request.foreignLanguage
       }
     }
 );
@@ -315,6 +329,7 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
             }
         })
     }
+    // On install, https://flipword.io is open we need to insert script in page to catch auth request
     if(details.url.includes('flipword.io')){
         chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
             chrome.tabs.executeScript(tabs[0].id, {

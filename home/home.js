@@ -4,14 +4,18 @@ function initApp() {
     document.getElementById('setting-button').addEventListener('click', openOption, false);
     document.getElementById('train-button').addEventListener('click', redirectToApp, false);
     document.getElementById('swap-button').addEventListener('click', requestSwapLanguage, false);
-    chrome.runtime.sendMessage({object: "getCurrentLanguages"}, function(response) {
+    setCurrentLanguageLabels()
+}
+
+function setCurrentLanguageLabels() {
+    console.log("set labell")
+    chrome.runtime.sendMessage({object: "loadCurrentLanguages"}, function(response) {
         const nativeLanguageLabel = response.currentLanguages.nativeLanguageLabel
         const foreignLanguageLabel = response.currentLanguages.foreignLanguageLabel
         document.getElementById('native-word-label').innerText = `${nativeLanguageLabel}:`
         document.getElementById('foreign-word-label').innerText = `${foreignLanguageLabel}:`
     });
 }
-
 function redirectToApp() {
     window.open('https://app.flipword.io')
 }
@@ -39,12 +43,7 @@ function requestSwapLanguage() {
 }
 
 function languageSwapped() {
-    chrome.runtime.sendMessage({object: "getCurrentLanguages"}, function(response) {
-        const nativeLanguageLabel = response.currentLanguages.nativeLanguageLabel
-        const foreignLanguageLabel = response.currentLanguages.foreignLanguageLabel
-        document.getElementById('native-word-label').innerText = `${nativeLanguageLabel}:`
-        document.getElementById('foreign-word-label').innerText = `${foreignLanguageLabel}:`
-    });
+    setCurrentLanguageLabels()
 }
 
 chrome.runtime.onMessage.addListener(
@@ -54,6 +53,9 @@ chrome.runtime.onMessage.addListener(
         }
         if(request.object == 'languageSwapped'){
             languageSwapped();
+        }
+        if(request.object == 'languageUpdated'){
+            setCurrentLanguageLabels();
         }
     })
 
